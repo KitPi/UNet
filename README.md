@@ -11,4 +11,5 @@ Creating a UNet Convolutional Neural Network for interactively colourising black
 ## Paper
 [Paper](paper/1505.04597v1.pdf)
 https://debuggercafe.com/unet-from-scratch-using-pytorch/
+[Uni-Freiberg: Olaf Ronneberger](https://lmb.informatik.uni-freiburg.de/people/ronneber/u-net/)
 Modified to take greyscale photos as input, then output LUV colorised photos
