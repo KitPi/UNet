@@ -13,3 +13,6 @@ def double_convolution(in_channels, out_channels):
 class UNet(nn.Module):
     def __init__(self):
         super(UNet, self).__init__()
+
+        self.max_pool2d = nn.MaxPool2d(kernel_size=2, stride=2)
+        
