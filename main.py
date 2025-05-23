@@ -5,7 +5,7 @@ def double_convolution(in_channels, out_channels):
     conv_op = nn.Sequential(
         nn.Conv2d(in_channels, out_channels, kernel_size = 3, padding = 1),
         nn.ReLU(inplace = True),
-        nn.Conv2d(out_channels, out_channels, kernel = 3, paddding = 1),
+        nn.Conv2d(out_channels, out_channels, kernel_size = 3, padding = 1),
         nn.ReLU(inplace = True)
     ) 
     return conv_op
@@ -37,7 +37,7 @@ class UNet(nn.Module):
         self.up_transpose_4 = nn.ConvTranspose2d(in_channels=128, out_channels=64, kernel_size=2, stride=2)
 
         # output layer
-        self.out = nn.Conv2d(in_channels=64, out_channels=3, kernel_size=3)
+        self.out = nn.Conv2d(in_channels=64, out_channels=3, kernel_size=1)
 
     def forward(self, x):
         
@@ -63,6 +63,19 @@ class UNet(nn.Module):
         x = self.up_convolution_4(torch.cat([down_1, up_4]))
 
         # output
-        out = self.out(x) 
+        out = self.out(x)
 
         return out
+
+if __name__ == '__main__':
+    input = torch.rand((1, 3, 256, 256))
+    model = UNet()
+
+    total_params = sum(p.numel() for p in model.parameters())
+    print(f"{total_params:,} total parameters.")
+
+    total_trainable_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
+    print(f"{total_params:,} total trainable parameters.")
+
+    output = model(input)
+    print(output.shape)
