@@ -68,6 +68,7 @@ class UNet(nn.Module):
         return out
 
 if __name__ == '__main__':
+    # unit tests
     import matplotlib.pyplot as plt
     import numpy as np
 
