@@ -1,4 +1,6 @@
 from torch.utils.data import Dataset, DataLoader
+from torch import nn
+import torch.optim as optim
 from skimage import transforms
 from PIL import Image
 
@@ -56,10 +58,10 @@ def collate_function(batch):
             masked_image = [image[0][mask ==1], image[1][mask ==1], image[2]]
             masked_images.append(torch.tensor(masked_image, dtype=torch.float32))
 
-    return torch.stack(masked_images)
+    return {"images": batch, "masked_images": torch.stack(masked_images)}
 
 # load dataset
-def load_dataset(dataset_folder, train_list, test_list, val_list, batch_size=batch_size, transform=None):
+def load_dataset(train_folder, test_folder, val_folder, batch_size=batch_size, transform=None):
     if transform is None:
         transform = transforms.Compose([
             transforms.ToTensor(),
@@ -77,3 +79,35 @@ def load_dataset(dataset_folder, train_list, test_list, val_list, batch_size=bat
     val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False, collate_fn=collate_function)
 
     return train_loader, test_loader, val_loader
+
+# loading dataset
+train_loader, test_loader, val_loader = DataLoader(train_folder, test_folder, val_folder, batch_size=batch_size)
+
+# training loop
+num_epochs = 5
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+model = UNet()
+model.to(device)
+
+optimizer = optim.Adam
+criterion = nn.MSELoss()
+
+for epoch in range(num_epochs):
+    model.train()
+    for i, batch in enumerate(train_loader):
+        # define loss function 
+        # define input and 'labels'
+        images = batch['images']
+        masked_images = batch['masked_images']
+
+        images.to(device)
+        masked_images.to(device)
+
+        optimizer.zero_grad()
+
+        output = model(masked_images)
+
+        loss = criterion(output, images[:,:,:,])
+        
+        loss.backward()
+        optimizer.step()
