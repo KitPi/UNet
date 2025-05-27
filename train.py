@@ -40,12 +40,13 @@ class ImageDataset(Dataset):
             image = self.transform(image)
         return image
 
+expansion_ratio = 4
 # make a collation function that loads the images, and blanks out the HS channels except for a few random points
 # takes a batch of images as a parameter
 def collate_function(batch):
     masked_images=[]
     for image in batch:
-        for _ in range(4):
+        for _ in range(expansion_ratio):
             mask = np.zeros_like(image[0])
             num_points = np.randint(0,6)
             total_points = image.size
@@ -89,7 +90,8 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model = UNet()
 model.to(device)
 
-optimizer = optim.Adam
+learning_rate = 5e-5
+optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 criterion = nn.MSELoss()
 
 for epoch in range(num_epochs):
@@ -104,10 +106,12 @@ for epoch in range(num_epochs):
         masked_images.to(device)
 
         optimizer.zero_grad()
-
-        output = model(masked_images)
-
-        loss = criterion(output, images[:,:,:,])
         
-        loss.backward()
+        total_loss= 0.0
+        output = model(masked_images)
+        for j in range(expansion_ratio):
+            loss = criterion(output[j,:,:], images[:,:-1,:,:])
+            total_lost += loss
+        
+        total_loss.backward()
         optimizer.step()
