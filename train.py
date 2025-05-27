@@ -46,6 +46,7 @@ expansion_ratio = 4
 def collate_function(batch):
     masked_images=[]
     for image in batch:
+        expansion_list = []
         for _ in range(expansion_ratio):
             mask = np.zeros_like(image[0])
             num_points = np.randint(0,6)
@@ -57,7 +58,8 @@ def collate_function(batch):
                 mask[row, col] = 1
 
             masked_image = [image[0][mask ==1], image[1][mask ==1], image[2]]
-            masked_images.append(torch.tensor(masked_image, dtype=torch.float32))
+            expansion_list.append(torch.tensor(masked_image, dtype=torch.float32))
+        masked_images.append(expansion_list)
 
     return {"images": batch, "masked_images": torch.stack(masked_images)}
 
@@ -108,10 +110,16 @@ for epoch in range(num_epochs):
         optimizer.zero_grad()
         
         total_loss= 0.0
-        output = model(masked_images)
         for j in range(expansion_ratio):
-            loss = criterion(output[j,:,:], images[:,:-1,:,:])
+            output = model(masked_images[:,j,:,:,:])
+            loss = criterion(output, images[:,:-1,:,:])
+            # batch_size, ?expansion ratio?, channels, h, w :: vs :: batch_size, channels, h, w
             total_lost += loss
         
         total_loss.backward()
         optimizer.step()
+
+        if i % 10 ==0:
+            print(f'Epoch: [{epoch+1}/{num_epochs}], Batch [{i}], Total loss: {total_loss.item():.4f}')
+
+        
