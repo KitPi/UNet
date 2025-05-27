@@ -56,8 +56,6 @@ def collate_function(batch):
             masked_image = [image[0][mask ==1], image[1][mask ==1], image[2]]
             masked_images.append(torch.tensor(masked_image, dtype=torch.float32))
 
-
-
     return torch.stack(masked_images)
 
 # load dataset
