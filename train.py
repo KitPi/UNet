@@ -3,6 +3,8 @@ from skimage import transforms
 import os
 from PIL import Image
 
+import numpy as np
+
 from main import UNet
 
 # load models
@@ -35,10 +37,14 @@ class ImageDataset(Dataset):
             image = self.transform(image)
         return image
 
-# make a collation function that loads the images in HSV colour space, and blanks out the HS channels except for a few random points
+# make a collation function that loads the images, and blanks out the HS channels except for a few random points
 # takes a batch of images as a parameter
 def collate_function(batch):
-    return image
+    for image in batch:
+        mask = np.zeros_like(image[0])
+        
+
+    return batch
 
 # load dataset
 def load_dataset(dataset_folder, train_list, test_list, val_list, batch_size=batch_size, transform=None):
