@@ -1,8 +1,9 @@
 from torch.utils.data import Dataset, DataLoader
 from skimage import transforms
-import os
 from PIL import Image
 
+import os
+import torch 
 import numpy as np
 
 from main import UNet
@@ -40,11 +41,24 @@ class ImageDataset(Dataset):
 # make a collation function that loads the images, and blanks out the HS channels except for a few random points
 # takes a batch of images as a parameter
 def collate_function(batch):
+    masked_images=[]
     for image in batch:
-        mask = np.zeros_like(image[0])
-        
+        for _ in range(4):
+            mask = np.zeros_like(image[0])
+            num_points = np.randint(0,6)
+            total_points = image.size
+            random_points = np.random.choice(total_points, size = num_points, replace=False)
 
-    return batch
+            for index in random_points:
+                row, col = divmod(index, image.shape[1])
+                mask[row, col] = 1
+
+            masked_image = [image[0][mask ==1], image[1][mask ==1], image[2]]
+            masked_images.append(torch.tensor(masked_image, dtype=torch.float32))
+
+
+
+    return torch.stack(masked_images)
 
 # load dataset
 def load_dataset(dataset_folder, train_list, test_list, val_list, batch_size=batch_size, transform=None):
