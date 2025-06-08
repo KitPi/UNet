@@ -3,6 +3,7 @@ from torch import nn
 import torch.optim as optim
 from skimage import transform
 from PIL import Image
+from torchvision import transforms
 
 import os
 import torch 
@@ -15,7 +16,7 @@ model = UNet(input_channels=3, output_channels=2)
 
 ## parameters
 batch_size = 16
-train_folder = "dataset/train/*"
+train_folder = "dataset/train/"
 test_folder = "dataset/test/"
 val_folder = "dataset/val/"
 output_dir = "output/"
@@ -49,27 +50,33 @@ def collate_function(batch):
     for image in batch:
         expansion_list = []
         for _ in range(expansion_ratio):
-            mask = np.zeros_like(image[0])
-            num_points = np.randint(0,6)
-            total_points = image.size
+
+            mask = np.zeros((image.shape[1], image.shape[2]), dtype=np.float32)
+            num_points = np.random.randint(1,6)
+            total_points = image.shape[0] * image.shape[1]
             random_points = np.random.choice(total_points, size = num_points, replace=False)
 
             for index in random_points:
-                row, col = divmod(index, image.shape[1])
+                row, col = divmod(index, image.shape[2])
                 mask[row, col] = 1
 
-            masked_image = [image[0][mask ==1], image[1][mask ==1], image[2]]
-            expansion_list.append(torch.tensor(masked_image, dtype=torch.float32))
-        masked_images.append(expansion_list)
+            masked_image = image.clone()
+            masked_image[0] = masked_image[0] * mask
+            masked_image[1] = masked_image[1] * mask
+
+            expansion_list.append(masked_image)
+            
+        masked_images.extend(expansion_list)
 
     return {"images": batch, "masked_images": torch.stack(masked_images)}
 
 # load dataset
 def load_dataset(train_folder, test_folder, val_folder, batch_size=batch_size, transform=None):
     if transform is None:
-        transform = transform.Compose([
-            transform.ToTensor(),
-            transform.Normalise(mean=[0.5], std=[0.25])
+        transform = transforms.Compose([
+            transforms.Resize((255, 255)),
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[0.5], std=[0.25])
         ])
 
     # create train, test, and val datasets
@@ -79,18 +86,18 @@ def load_dataset(train_folder, test_folder, val_folder, batch_size=batch_size, t
 
     # load datasets
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, collate_fn=collate_function)
-    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, collate_fn=collate_function)
-    val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False, collate_fn=collate_function)
+    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=True, collate_fn=collate_function)
+    val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=True, collate_fn=collate_function)
 
     return train_loader, test_loader, val_loader
 
 # loading dataset
-train_loader, test_loader, val_loader = DataLoader(train_folder, test_folder, val_folder, batch_size)
+train_loader, test_loader, val_loader = load_dataset(train_folder, test_folder, val_folder, batch_size)
 
 # training loop
 num_epochs = 5
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-model = UNet()
+model = UNet(input_channels=3, output_channels=2)
 model.to(device)
 
 learning_rate = 5e-5
@@ -104,6 +111,7 @@ for epoch in range(num_epochs):
         # define input and 'labels'
         images = batch['images']
         masked_images = batch['masked_images']
+        masked_images
 
         images.to(device)
         masked_images.to(device)
