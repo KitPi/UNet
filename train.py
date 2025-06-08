@@ -1,7 +1,7 @@
 from torch.utils.data import Dataset, DataLoader
 from torch import nn
 import torch.optim as optim
-from skimage import transforms
+from skimage import transform
 from PIL import Image
 
 import os
@@ -15,7 +15,7 @@ model = UNet(input_channels=3, output_channels=2)
 
 ## parameters
 batch_size = 16
-train_folder = "dataset/train/"
+train_folder = "dataset/train/*"
 test_folder = "dataset/test/"
 val_folder = "dataset/val/"
 output_dir = "output/"
@@ -43,6 +43,7 @@ class ImageDataset(Dataset):
 expansion_ratio = 4
 # make a collation function that loads the images, and blanks out the HS channels except for a few random points
 # takes a batch of images as a parameter
+
 def collate_function(batch):
     masked_images=[]
     for image in batch:
@@ -66,9 +67,9 @@ def collate_function(batch):
 # load dataset
 def load_dataset(train_folder, test_folder, val_folder, batch_size=batch_size, transform=None):
     if transform is None:
-        transform = transforms.Compose([
-            transforms.ToTensor(),
-            transforms.Normalise(mean=[0.5], std=[0.25])
+        transform = transform.Compose([
+            transform.ToTensor(),
+            transform.Normalise(mean=[0.5], std=[0.25])
         ])
 
     # create train, test, and val datasets
@@ -84,7 +85,7 @@ def load_dataset(train_folder, test_folder, val_folder, batch_size=batch_size, t
     return train_loader, test_loader, val_loader
 
 # loading dataset
-train_loader, test_loader, val_loader = DataLoader(train_folder, test_folder, val_folder, batch_size=batch_size)
+train_loader, test_loader, val_loader = DataLoader(train_folder, test_folder, val_folder, batch_size)
 
 # training loop
 num_epochs = 5
