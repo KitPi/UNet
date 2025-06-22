@@ -66,9 +66,9 @@ def collate_function(batch):
 
             expansion_list.append(masked_image)
             
-        masked_images.extend(expansion_list)
+        masked_images.append(expansion_list)
 
-    return {"images": batch, "masked_images": torch.stack(masked_images)}
+    return {"images": torch.stack(batch), "masked_images": torch.stack(masked_images)}
 
 # load dataset
 def load_dataset(train_folder, test_folder, val_folder, batch_size=batch_size, transform=None):
@@ -121,7 +121,7 @@ for epoch in range(num_epochs):
         total_loss= 0.0
         for j in range(expansion_ratio):
             output = model(masked_images[:,j,:,:,:])
-            loss = criterion(output, images[:,:-1,:,:])
+            loss = criterion(output, images[:,:,:,:])
             # batch_size, ?expansion ratio?, channels, h, w :: vs :: batch_size, channels, h, w
             total_lost += loss
         
