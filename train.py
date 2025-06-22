@@ -48,33 +48,38 @@ expansion_ratio = 4
 def collate_function(batch):
     masked_images=[]
     for image in batch:
-        expansion_list = []
-        for _ in range(expansion_ratio):
+        #expansion_list = []
+        #for _ in range(expansion_ratio):
 
-            mask = np.zeros((image.shape[1], image.shape[2]), dtype=np.float32)
-            num_points = np.random.randint(1,6)
-            total_points = image.shape[0] * image.shape[1]
-            random_points = np.random.choice(total_points, size = num_points, replace=False)
+        mask = np.zeros((image.shape[1], image.shape[2]), dtype=np.float32)
 
-            for index in random_points:
-                row, col = divmod(index, image.shape[2])
-                mask[row, col] = 1
+        num_points = np.random.randint(1,6)
+        total_points = image.shape[0] * image.shape[1]
 
-            masked_image = image.clone()
-            masked_image[0] *= mask
-            masked_image[1] *= mask
+        random_points = np.random.choice(total_points, size = num_points, replace=False)
 
-            expansion_list.append(masked_image)
+        for index in random_points:
+            row, col = divmod(index, image.shape[2])
+            mask[row, col] = 1
+
+        masked_image = image.clone()
+        masked_image[0] *= mask
+        masked_image[1] *= mask
+
+            #expansion_list.append(masked_image)
             
-        masked_images.extend(expansion_list)
+        masked_images.append(masked_image)
 
-    return {"images": torch.stack(batch), "masked_images": torch.stack(masked_images)}
+    return {
+        "images": torch.stack(batch),
+        "masked_images": torch.stack(masked_images)
+    }
 
 # load dataset
 def load_dataset(train_folder, test_folder, val_folder, batch_size=batch_size, transform=None):
     if transform is None:
         transform = transforms.Compose([
-            transforms.Resize((255, 255)),
+            transforms.Resize((256, 256)),
             transforms.ToTensor(),
             transforms.Normalize(mean=[0.5], std=[0.25])
         ])
@@ -110,8 +115,9 @@ for epoch in range(num_epochs):
         # define loss function 
         # define input and 'labels'
         images = batch['images']
+        #print(images.shape)
         masked_images = batch['masked_images']
-        masked_images
+        #print(masked_images.shape)
 
         images.to(device)
         masked_images.to(device)
@@ -121,14 +127,14 @@ for epoch in range(num_epochs):
         total_loss= 0.0
         for j in range(expansion_ratio):
             output = model(masked_images[:,:,:,:])
-            loss = criterion(output, images[:,:,:,:])
+            loss = criterion(output, images[:,:2,:,:])
             # batch_size, ?expansion ratio?, channels, h, w :: vs :: batch_size, channels, h, w
-            total_lost += loss
+            total_loss += loss
         
         total_loss.backward()
         optimizer.step()
 
-        if i % 10 ==0:
+        if i % batch_size ==0:
             print(f'Epoch: [{epoch+1}/{num_epochs}], Batch [{i}], Total loss: {total_loss.item():.4f}')
 
         
