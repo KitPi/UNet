@@ -61,12 +61,12 @@ def collate_function(batch):
                 mask[row, col] = 1
 
             masked_image = image.clone()
-            masked_image[0] = masked_image[0] * mask
-            masked_image[1] = masked_image[1] * mask
+            masked_image[0] *= mask
+            masked_image[1] *= mask
 
             expansion_list.append(masked_image)
             
-        masked_images.append(expansion_list)
+        masked_images.extend(expansion_list)
 
     return {"images": torch.stack(batch), "masked_images": torch.stack(masked_images)}
 
@@ -120,7 +120,7 @@ for epoch in range(num_epochs):
         
         total_loss= 0.0
         for j in range(expansion_ratio):
-            output = model(masked_images[:,j,:,:,:])
+            output = model(masked_images[:,:,:,:])
             loss = criterion(output, images[:,:,:,:])
             # batch_size, ?expansion ratio?, channels, h, w :: vs :: batch_size, channels, h, w
             total_lost += loss
