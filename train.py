@@ -5,17 +5,21 @@ from skimage import transform
 from PIL import Image
 from torchvision import transforms
 
+from torch.utils.tensorboard import SummaryWriter
+
 import os
 import torch 
 import numpy as np
 
 from main import UNet
 
+writer = SummaryWriter(log_dir='runs')
+
 # load models
 model = UNet(input_channels=3, output_channels=2)
 
 ## parameters
-batch_size = 16
+batch_size = 32
 train_folder = "dataset/train/"
 test_folder = "dataset/test/"
 val_folder = "dataset/val/"
@@ -63,8 +67,8 @@ def collate_function(batch):
             mask[row, col] = 1
 
         masked_image = image.clone()
-        masked_image[0] *= mask
-        masked_image[1] *= mask
+        masked_image[0] = masked_image[0] * mask
+        masked_image[1] = masked_image[1] * mask
 
             #expansion_list.append(masked_image)
             
@@ -119,22 +123,30 @@ for epoch in range(num_epochs):
         masked_images = batch['masked_images']
         #print(masked_images.shape)
 
-        images.to(device)
-        masked_images.to(device)
+        images = images.to(device)
+        masked_images = masked_images.to(device)
+        model = model.to(device)
 
         optimizer.zero_grad()
         
         total_loss= 0.0
-        for j in range(expansion_ratio):
-            output = model(masked_images[:,:,:,:])
-            loss = criterion(output, images[:,:2,:,:])
-            # batch_size, ?expansion ratio?, channels, h, w :: vs :: batch_size, channels, h, w
-            total_loss += loss
+        #for j in range(expansion_ratio):
+        output = model(masked_images[:,:,:,:])
+        loss = criterion(output, images[:,:2,:,:])
+        # batch_size, ?expansion ratio?, channels, h, w :: vs :: batch_size, channels, h, w
+        #total_loss += loss
         
-        total_loss.backward()
+        loss.backward()
         optimizer.step()
 
+        writer.add_scalar('Loss/train', loss.item(), epoch * len(train_loader) + i)
+
         if i % batch_size ==0:
-            print(f'Epoch: [{epoch+1}/{num_epochs}], Batch [{i}], Total loss: {total_loss.item():.4f}')
+            print(f'Epoch: [{epoch+1}/{num_epochs}], Batch [{i}], Total loss: {loss.item():.4f}')
+
+writer.close()                              
+
+## Save model
+torch.save(model.cpu(), output_dir + 'model.pth')
 
         

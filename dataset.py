@@ -2,6 +2,7 @@
 
 import os
 import shutil
+from PIL import Image
 
 def merge_subfolders(main_folder):
     # Iterate through all items in the main folder
@@ -19,8 +20,24 @@ def merge_subfolders(main_folder):
             os.rmdir(item_path)
             print(f"Removed subfolder: {item_path}")
 
-# Specify the path to your main folder
+# Specify the path to the dataset
 main_folder_path = 'dataset/train/'
 
+def integrity(dataset_path):
+    # Iterate over all files in the folder
+    for filename in os.listdir(dataset_path):
+        # Check if the file is an image (e.g. JPEG, PNG, etc.)
+        if filename.lower().endswith(('.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff')):
+            # Try to open the image file
+            try:
+                img = Image.open(os.path.join(dataset_path, filename))
+                img.verify()
+                #print(f"{filename} is valid")
+            except IOError:
+                print(f"{filename} is corrupted or invalid")
+
+
 # Call the function to merge subfolder contents
-merge_subfolders(main_folder_path)
+# merge_subfolders(main_folder_path)
+
+integrity(main_folder_path)
