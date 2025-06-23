@@ -29,7 +29,7 @@ output_dir = "output/"
 # dataset
 class ImageDataset(Dataset):
     def __init__(self, images_path, transform = None):
-        self.image_list = [os.path.join(images_path, im) for im in os.listdir(images_path)] # Image list
+        self.image_list = [os.path.join(images_path, im) for im in os.listdir(images_path) if im.lower().endswith(('.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff'))]
         self.transform = transform
     def __len__(self):
         return len(self.image_list)
@@ -144,6 +144,10 @@ for epoch in range(num_epochs):
         if i % batch_size ==0:
             print(f'Epoch: [{epoch+1}/{num_epochs}], Batch [{i}], Total loss: {loss.item():.4f}')
 
+    ## Save model
+    torch.save(model.state_dict(), f'model_epoch_{epoch+1}.pth')
+    print(f'Model saved at epoch {epoch+1}')
+    
 writer.close()                              
 
 ## Save model
