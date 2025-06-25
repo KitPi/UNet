@@ -145,7 +145,7 @@ for epoch in range(num_epochs):
             print(f'Epoch: [{epoch+1}/{num_epochs}], Batch [{i}], Total loss: {loss.item():.4f}')
 
     ## Save model
-    torch.save(model.state_dict(), f'model_epoch_{epoch+1}.pth')
+    torch.save(model.state_dict(), output_dir + f'model_epoch_{epoch+1}.pth')
     print(f'Model saved at epoch {epoch+1}')
     
 writer.close()                              

@@ -16,3 +16,7 @@ Creating a UNet Convolutional Neural Network for interactively colourising black
 [Debugger Cafe: Sovit Ranjan Rath: 3 April 2023](https://debuggercafe.com/unet-from-scratch-using-pytorch/)
 
 Modified to take greyscale photos as input, then output LUV colorised photos
+
+## Training
+Training loss (smoothed) / Time
+![Training loss](<runs/Pasted image.png>)
