@@ -20,3 +20,6 @@ Modified to take greyscale photos as input, then output LUV colorised photos
 ## Training
 Training loss (smoothed) / Time
 ![Training loss](<runs/Pasted image.png>)
+
+## TODO
+- [ ] Pytorch and Rust GUI : https://medium.com/@heyamit10/loading-and-running-a-pytorch-model-in-rust-f10d2577d570

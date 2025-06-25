@@ -1,11 +1,11 @@
 from torch.utils.data import Dataset, DataLoader
 from torch import nn
-import torch.optim as optim
-from skimage import transform
-from PIL import Image
 from torchvision import transforms
+import torch.optim as optim
 
 from torch.utils.tensorboard import SummaryWriter
+
+from PIL import Image
 
 import os
 import torch 
