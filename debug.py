@@ -32,6 +32,9 @@ class ImageDataset(Dataset):
 images_path = "dataset/test/"
 model_path = "output/"
 batch_size = 32
+epochs=5
+num_example_images =5
+img_width =img_height=256
 
 def collate_function(batch):
     masked_images=[]
@@ -82,59 +85,90 @@ def main():
 
     # load images
     image_loader = load_dataset(images_path=images_path, batch_size=batch_size)
+
+    batch = next(iter(image_loader))
     
-    # load model
-    weights_path = "model.pth"
-    model = UNet(input_channels=3, output_channels=2)
-    try:
-        weights = torch.load('output/model.pth', map_location=device, weights_only=False)
-    except FileNotFoundError:
-        print(f"Model: {weights_path} does not exist.")
-        raise
-    
-    model.load_state_dict(weights.state_dict())
-    model.to(device)
+    images = batch["images"][:num_example_images]
 
+    masked_images = batch["masked_images"][:num_example_images]
+    #print(masked_images)
+    mean = 0.5
+    std = 0.25
 
-    for i, batch in enumerate(image_loader):
-        images = batch['images']
-        masked_images = batch['masked_images']
+    #images = images * std + mean
+    #masked_images = masked_images * std + mean
 
-        device_images = images.to(device)
+    #combined_images = [Image.new("RGB", (img_width * (epochs + 1), img_height)) for _ in range(num_example_images)]
+
+    models = [UNet(input_channels=3, output_channels=2) for _ in range(epochs)]
+
+    total_images = []
+    for j in range(epochs):
+        # load model
+        #weights_path = "model.pth"
+        model = UNet(input_channels=3, output_channels=2)
+        try:
+            weights = torch.load(f'output/model_epoch_{j+1}.pth', map_location=device, weights_only=False)
+        except FileNotFoundError:
+            print(f"Model: output/model_epoch_{j+1}.pth does not exist.")
+            raise
+        
+        model.load_state_dict(weights)#.state_dict())
+        model.to(device)
+
         device_masked_images = masked_images.to(device)
 
         output = model(device_masked_images)
 
         inferred_images = output.cpu()
-        #inferred_images[0, 2, :, :] = images[0, 2, :, :]
-        inferred_images = torch.cat((inferred_images[:, :2, :, :], images[:, 2, :, :].unsqueeze(0), inferred_images[:, 2:, :, :]), dim=1)
+
+        epoch_images = []
+        for i in range(num_example_images):
+            #images = batch['images']
+            #masked_images = batch['masked_images']
+
+            #device_images = images.to(device)
+            
+            #print(inferred_images[0, :, :, :].shape)# = images[0, 2, :, :]
+            #print(images[0, 2, :, :].unsqueeze(0).shape)
+            inferred_image = torch.cat((inferred_images[i, :, :, :], images[i, 2, :, :].unsqueeze(0)), dim=0)
 
 
-        image = images[0]
-        masked_image = masked_images[0]
+            #image = images[0]
+            #masked_image = masked_images[0]
 
-        # Un-normalise image-tensors
-        mean = 0.5
-        std = 0.25
+            # Un-normalise image-tensors
+            
+            inferred_image = inferred_image * std + mean
 
-        image = image * std + mean
-        masked_image = masked_image * std + mean
-        inferred_image = inferred_image * std + mean
-
-        # image-tensor to images
-        image = transforms.functional.to_pil_image(image, mode="HSV")
-        masked_image = transforms.functional.to_pil_image(masked_image, mode="HSV")
-        inferred_image = transforms.functional.to_pil_image(inferred_image, mode="HSV")
+            # image-tensor to images
+            #image = transforms.functional.to_pil_image(image, mode="HSV")
+            #masked_image = transforms.functional.to_pil_image(masked_image, mode="HSV")
+            inferred_image = transforms.functional.to_pil_image(inferred_image, mode="HSV")
 
 
-        # save images
-        img_out = 'examples/'
+            #image.convert(mode="RGB").save(f"{img_out}_{i}.png")
+            #masked_image.convert(mode="RGB").save(f"{img_out}_masked_{i}.png")
+            epoch_images.append(inferred_image.convert(mode="RGB"))#.save(f"{img_out}_inferred_{i}.png")
 
-        image.convert(mode="RGB").save(f"{img_out}_{i}.png")
-        masked_image.convert(mode="RGB").save(f"{img_out}_masked_{i}.png")
-        inferred_image.convert(mode="RGB").save(f"{img_out}_inferred_{i}.png")
+        total_images.append(epoch_images)
+    
+    
+    img_out = 'examples/'
+    out = Image.new("RGB", (img_width * (num_example_images + 2), img_height * num_example_images))
+    for i, im_list in enumerate(total_images):
+        for j, im in enumerate(im_list):
+            out.paste(im, (img_width * (i + 1), img_height *j))
+        #out.paste(masked_images[i].convert(mode="RGB"), (img_width * num_example_images, img_height *i))
 
-        if i >= 5:
-            break
+    images = images * std + mean
+    masked_images = masked_images * std + mean
+
+    for i in range(num_example_images):
+        mim = transforms.functional.to_pil_image(masked_images[i], mode="HSV")
+        im = transforms.functional.to_pil_image(images[i], mode="HSV")
+        out.paste(mim, (0, img_height * i))
+        out.paste(im, (img_width * (num_example_images), img_height * i))
+    out.save(f"{img_out}_combined_img.png")
 
 main()

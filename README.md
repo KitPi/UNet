@@ -21,5 +21,12 @@ Modified to take greyscale photos as input, then output LUV colorised photos
 Training loss (smoothed) / Time
 ![Training loss](<runs/Pasted image.png>)
 
+## Version 1
+No BatchNorm
+Image input and targets Normalized: $\mu$: 0.5, $\sigma$ 0.25 
+Epochs: 5
+![Results](examples/_combined_img.png)
+Input, Epoch 1, Epoch 2, Epoch 3, Epoch 4, Epoch 5, Ground Truth
+
 ## TODO
 - [ ] Pytorch and Rust GUI : https://medium.com/@heyamit10/loading-and-running-a-pytorch-model-in-rust-f10d2577d570
