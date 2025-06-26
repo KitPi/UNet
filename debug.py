@@ -87,12 +87,12 @@ def main():
     weights_path = "model.pth"
     model = UNet(input_channels=3, output_channels=2)
     try:
-        weights = torch.load('output/model.pth', weights_only=True)
+        weights = torch.load('output/model.pth', map_location=device, weights_only=False)
     except FileNotFoundError:
         print(f"Model: {weights_path} does not exist.")
         raise
     
-    model.load_state_dict(weights)
+    model.load_state_dict(weights.state_dict())
     model.to(device)
 
 
@@ -105,7 +105,10 @@ def main():
 
         output = model(device_masked_images)
 
-        inferred_image = output[0].cpu()
+        inferred_images = output.cpu()
+        #inferred_images[0, 2, :, :] = images[0, 2, :, :]
+        inferred_images = torch.cat((inferred_images[:, :2, :, :], images[:, 2, :, :].unsqueeze(0), inferred_images[:, 2:, :, :]), dim=1)
+
 
         image = images[0]
         masked_image = masked_images[0]
