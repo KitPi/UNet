@@ -168,7 +168,7 @@ def main():
         mim = transforms.functional.to_pil_image(masked_images[i], mode="HSV")
         im = transforms.functional.to_pil_image(images[i], mode="HSV")
         out.paste(mim, (0, img_height * i))
-        out.paste(im, (img_width * (num_example_images), img_height * i))
+        out.paste(im, (img_width * (num_example_images+1), img_height * i))
     out.save(f"{img_out}_combined_img.png")
 
 main()
