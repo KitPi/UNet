@@ -69,7 +69,7 @@ def collate_function(batch):
 
 def load_dataset(images_path, batch_size=batch_size, transform=None):
     if transform is None:
-        transform = transforms.Compose([
+        transform = transforms.Sequential([
             transforms.Resize((256, 256)),
             transforms.ToTensor(),
             transforms.Normalize(mean=[0.5], std=[0.25])
