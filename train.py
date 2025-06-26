@@ -125,7 +125,7 @@ for epoch in range(num_epochs):
 
         images = images.to(device)
         masked_images = masked_images.to(device)
-        model = model.to(device)
+        #model = model.to(device)
 
         optimizer.zero_grad()
         
