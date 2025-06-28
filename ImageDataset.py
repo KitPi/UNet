@@ -3,6 +3,7 @@ from PIL import Image
 import os
 import torch
 from torchvision import transforms
+import numpy as np
 
 # dataset
 class ImageDataset(Dataset):
@@ -56,7 +57,7 @@ def collate_function(batch):
     }
 
 
-def load_dataset(images_path, batch_size=batch_size, transform=None):
+def load_dataset(images_path, batch_size=32, transform=None):
     if transform is None:
         transform = transforms.Sequential([
             transforms.Resize((256, 256)),
