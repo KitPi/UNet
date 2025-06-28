@@ -22,6 +22,7 @@ Modified to take greyscale photos as input, then output LUV colorised photos
 - Image input and targets Normalized: $\mu$: 0.5, $\sigma$ 0.25 
 - Epochs: 5
 - Mean Squared Error Loss
+- No dropout
 
 ## Training
 Training loss (smoothed) / Time
