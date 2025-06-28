@@ -27,23 +27,25 @@ output_dir = "output/"
 
 
 # dataset
-class ImageDataset(Dataset):
-    def __init__(self, images_path, transform = None):
-        self.image_list = [os.path.join(images_path, im) for im in os.listdir(images_path) if im.lower().endswith(('.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff'))]
-        self.transform = transform
-    def __len__(self):
-        return len(self.image_list)
-    def __getitem__(self, index):
-        image_path = self.image_list[index]
-        # attempt to open images and convert to HSV
-        try:
-            image = Image.open(image_path).convert('HSV')
-        except FileNotFoundError:
-            print(f"Image not found: {image_path}")
-            raise
-        if self.transform:
-            image = self.transform(image)
-        return image
+#class ImageDataset(Dataset):
+#    def __init__(self, images_path, transform = None):
+#        self.image_list = [os.path.join(images_path, im) for im in os.listdir(images_path) if im.lower().endswith(('.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff'))]
+#        self.transform = transform
+#    def __len__(self):
+#        return len(self.image_list)
+#    def __getitem__(self, index):
+#        image_path = self.image_list[index]
+#        # attempt to open images and convert to HSV
+#        try:
+#            image = Image.open(image_path).convert('HSV')
+#        except FileNotFoundError:
+#            print(f"Image not found: {image_path}")
+#            raise
+#        if self.transform:
+#            image = self.transform(image)
+#        return image
+    
+from ImageDataset import ImageDataset
 
 expansion_ratio = 4
 # make a collation function that loads the images, and blanks out the HS channels except for a few random points

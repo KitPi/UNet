@@ -11,23 +11,25 @@ from torch.utils.data import Dataset, DataLoader
 import torch
 
 # dataset
-class ImageDataset(Dataset):
-    def __init__(self, images_path, transform = None):
-        self.image_list = [os.path.join(images_path, im) for im in os.listdir(images_path) if im.lower().endswith(('.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff'))]
-        self.transform = transform
-    def __len__(self):
-        return len(self.image_list)
-    def __getitem__(self, index):
-        image_path = self.image_list[index]
-        # attempt to open images and convert to HSV
-        try:
-            image = Image.open(image_path).convert('HSV')
-        except FileNotFoundError:
-            print(f"Image not found: {image_path}")
-            raise
-        if self.transform:
-            image = self.transform(image)
-        return image
+#class ImageDataset(Dataset):
+#    def __init__(self, images_path, transform = None):
+#        self.image_list = [os.path.join(images_path, im) for im in os.listdir(images_path) if im.lower().endswith(('.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff'))]
+#        self.transform = transform
+#    def __len__(self):
+#        return len(self.image_list)
+#    def __getitem__(self, index):
+#        image_path = self.image_list[index]
+#        # attempt to open images and convert to HSV
+#        try:
+#            image = Image.open(image_path).convert('HSV')
+#        except FileNotFoundError:
+#            print(f"Image not found: {image_path}")
+#            raise
+#        if self.transform:
+#            image = self.transform(image)
+#        return image
+
+from ImageDataset import ImageDataset
 
 images_path = "dataset/test/"
 model_path = "output/"
@@ -99,8 +101,6 @@ def main():
     #masked_images = masked_images * std + mean
 
     #combined_images = [Image.new("RGB", (img_width * (epochs + 1), img_height)) for _ in range(num_example_images)]
-
-    models = [UNet(input_channels=3, output_channels=2) for _ in range(epochs)]
 
     total_images = []
     for j in range(epochs):
