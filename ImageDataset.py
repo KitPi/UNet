@@ -2,6 +2,7 @@ from torch.utils.data import Dataset, DataLoader
 from PIL import Image
 import os
 import torch
+from torchvision import transforms
 
 # dataset
 class ImageDataset(Dataset):
