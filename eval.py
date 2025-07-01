@@ -74,6 +74,30 @@ def main():
         writer = csv.writer(csvfile)
         writer.writerows(write_file)
 
-main()
+def graph(read_file_path):
+    x_data = []
+    y_data = []
+    
+    try:
+        with open(read_file_path, 'r', newline = '') as csvfile:
+            reader = csv.reader(csvfile)
 
+            for row in reader:
+                if len(row) >= 2:
+                    try:
+                        x_data.append(float(row[0]))
+                        y_data.append(float(row[1]))
+                    except ValueError:
+                        print(f"Value doesn't exist, skipping row {row}")
+                else:
+                    print(f"Skipping row: {row}")
+
+        
+    except FileNotFoundError:
+        print(f'File not found: {read_file_path}')
+    except Exception as e:
+        print(f'An eeror occured: {e}')
+
+#main()
+graph(write_file_path)
 

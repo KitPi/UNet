@@ -31,8 +31,9 @@ Training loss (smoothed) / Time
 ## Results
 ![Results](examples/_combined_img.png)
 Input, Epoch 1, Epoch 2, Epoch 3, Epoch 4, Epoch 5, Ground Truth
+[Evaluation](examples/write_file.csv)
 
 ## TODO
 - [ ] Fix HSV normalization
-- [ ] Run performance evaluation
+- [x] Run performance evaluation
 - [ ] Pytorch and Rust GUI : https://medium.com/@heyamit10/loading-and-running-a-pytorch-model-in-rust-f10d2577d570
