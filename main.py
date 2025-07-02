@@ -1,12 +1,25 @@
 import torch
 import torch.nn as nn
 
-def double_convolution(in_channels, out_channels):
+def down_convolution(in_channels, out_channels):
     conv_op = nn.Sequential(
         nn.Conv2d(in_channels, out_channels, kernel_size = 3, padding = 1),
+        nn.BatchNorm2d(),
         nn.ReLU(inplace = True),
         nn.Conv2d(out_channels, out_channels, kernel_size = 3, padding = 1),
         nn.ReLU(inplace = True)
+    ) 
+    return conv_op
+
+def up_convolution(in_channels, out_channels):
+    conv_op = nn.Sequential(
+        nn.Conv2d(in_channels, out_channels, kernel_size = 3, padding = 1),
+        nn.ReLU(inplace = True),
+        nn.BatchNorm2d(out_channels),
+        nn.Conv2d(out_channels, out_channels, kernel_size = 3, padding = 1),
+        nn.ReLU(inplace = True),
+        nn.BatchNorm2d(out_channels),
+        nn.BatchNorm2d(out_channels),
     ) 
     return conv_op
 
@@ -18,17 +31,17 @@ class UNet(nn.Module):
         self.max_pool2d = nn.MaxPool2d(kernel_size=2, stride=2)
 
         # down convolution layers
-        self.down_convolution_1 = double_convolution(input_channels, 64)
-        self.down_convolution_2 = double_convolution(64, 128)
-        self.down_convolution_3 = double_convolution(128, 256)
-        self.down_convolution_4 = double_convolution(256, 512)
-        self.down_convolution_5 = double_convolution(512, 1024)
+        self.down_convolution_1 = down_convolution(input_channels, 64)
+        self.down_convolution_2 = down_convolution(64, 128)
+        self.down_convolution_3 = down_convolution(128, 256)
+        self.down_convolution_4 = down_convolution(256, 512)
+        self.down_convolution_5 = down_convolution(512, 1024)
 
         # up convolution layers
-        self.up_convolution_1 = double_convolution(1024, 512)
-        self.up_convolution_2 = double_convolution(512, 256)
-        self.up_convolution_3 = double_convolution(256, 128)
-        self.up_convolution_4 = double_convolution(128, 64)
+        self.up_convolution_1 = up_convolution(1024, 512)
+        self.up_convolution_2 = up_convolution(512, 256)
+        self.up_convolution_3 = up_convolution(256, 128)
+        self.up_convolution_4 = up_convolution(128, 64)
 
         # up transpose layers
         self.up_transpose_1 = nn.ConvTranspose2d(in_channels=1024, out_channels=512, kernel_size=2, stride=2)
