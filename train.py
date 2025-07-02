@@ -111,7 +111,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model = UNet(input_channels=3, output_channels=2)
 model.to(device)
 
-learning_rate = 5e-5
+learning_rate = 0.001 #5e-5 
 optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 criterion = nn.MSELoss()
 
