@@ -85,7 +85,7 @@ def graph(read_file_path):
             for row in reader:
                 if len(row) >= 2:
                     try:
-                        x_data.append(float(row[0]))
+                        x_data.append((row[0]))
                         y_data.append(float(row[1]))
                     except ValueError:
                         print(f"Value doesn't exist, skipping row {row}")
@@ -96,7 +96,20 @@ def graph(read_file_path):
     except FileNotFoundError:
         print(f'File not found: {read_file_path}')
     except Exception as e:
-        print(f'An eeror occured: {e}')
+        print(f'An error occured: {e}')
+
+    import matplotlib.pyplot as plt
+
+    plt.plot(x_data, y_data, 'r')
+    plt.plot(x_data, y_data, 'o')
+    
+
+    plt.xlabel('Model epoch')
+    plt.ylabel('MSE error')
+    plt.title('Decrease in error vs. Epoch')
+    plt.ylim(0.5,1)
+
+    plt.savefig("examples/eval_fig.png")
 
 #main()
 graph(write_file_path)

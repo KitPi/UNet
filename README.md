@@ -31,7 +31,7 @@ Training loss (smoothed) / Time
 ## Results
 ![Results](examples/_combined_img.png)
 Input, Epoch 1, Epoch 2, Epoch 3, Epoch 4, Epoch 5, Ground Truth
-[Evaluation](examples/write_file.csv)
+![Evaluation|300px](examples/eval_fig.png)
 
 ## TODO
 - [ ] Fix HSV normalization
