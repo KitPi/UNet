@@ -45,8 +45,18 @@ Input | Epoch 1 | Epoch 2 | Epoch 3 | Epoch 4 | Epoch 5 | Ground Truth
 ------
 
 # TODO
-- [ ] Fix HSV normalization
+- [x] Fix HSV normalization
 - [x] Run performance evaluation
 - [ ] Pytorch and Rust GUI : https://medium.com/@heyamit10/loading-and-running-a-pytorch-model-in-rust-f10d2577d570
-- [ ] Dropout (intermediate layers, not from school)
-- [ ] Variable Learning rate
+- [ ] Dropout
+
+-----
+
+# Version 2 
+## Proposal
+ - [ ] No normalisation 
+ - [ ] Improved Loss function: MSE + SSIM
+ - [ ] BatchNorm
+ - [ ] Skip Connection Convolution, then
+ - [ ] Hintegration: Convolve hints, then integrate then convolve colour hints alongside down convolutions.
+ - [ ] Dropout Layers
