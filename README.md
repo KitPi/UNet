@@ -59,4 +59,5 @@ Input | Epoch 1 | Epoch 2 | Epoch 3 | Epoch 4 | Epoch 5 | Ground Truth
  - [ ] BatchNorm
  - [ ] Skip Connection Convolution, then
  - [ ] Hintegration: Convolve hints, then integrate then convolve colour hints alongside down convolutions.
- - [ ] Dropout Layers
+ - [ ] Dropout (not from school, from network)
+ - [ ] Variable learning rate
