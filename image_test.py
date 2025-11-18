@@ -16,7 +16,7 @@ image = np.asarray(images[0])
 print(image.shape)
 
 mask = np.zeros((image.shape[0], image.shape[1]), dtype=np.float32)
-num_points = 150000 #np.random.randint(1,6)
+num_points = 50000 #np.random.randint(1,6)
 total_points = image.shape[0] * image.shape[1]
 random_points = np.random.choice(total_points, size = num_points, replace=False)
 
@@ -29,8 +29,10 @@ for index in random_points:
 hints = image.copy()
 
 # Apply the mask to all three channels of the HSV image
-for i in range(3):
-    hints[:, :, i] = image[:, :, i] * mask # h,w,c
+#for i in range(3):
+hints[:, :, 0] = image[:, :, 0] * mask # h,w,c
+hints[:, :, 1] = image[:, :, 1] * mask # h,w,c
+hints[:, :, 2] = image[:, :, 2] * mask # h,w,c
 
 # Convert back to RGB for display
 hue_hints = Image.fromarray(hints[:, :, 0].astype('uint8'))#.convert('RGB')
