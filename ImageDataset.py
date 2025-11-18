@@ -34,7 +34,7 @@ def collate_function(batch):
 
         mask = np.zeros((image.shape[1], image.shape[2]), dtype=np.float32)
 
-        max_num_points = 15000 # 1500, 150, 15
+        max_num_points = 150# 125# 100# 75# 50# 25# 15# 10# 5
         num_points = np.random.randint(1, max_num_points) - 1
         total_points = image.shape[0] * image.shape[1]
 
@@ -44,16 +44,19 @@ def collate_function(batch):
             row, col = divmod(index, image.shape[2])
             mask[row, col] = 1
 
-        hint = image.clone()
-        hint = hint * mask
-        #hint[:, :, 1] = hint[:, :, 1] * mask
+        # Create a masked image
+        hint = image.copy()
 
-            #expansion_list.append(masked_image)
+        # Apply the mask to all three channels of the HSV image
+        #for i in range(3):
+        hint[:, :, 0] = image[:, :, 0] * mask # h,w,c
+        hint[:, :, 1] = image[:, :, 1] * mask # h,w,c
+        hint[:, :, 2] = image[:, :, 2] * mask # h,w,c
             
         hints.append(hint)
 
     return {
-        "images": torch.stack(image),
+        "images": torch.stack(batch),
         "hints": torch.stack(hints)
     }
 

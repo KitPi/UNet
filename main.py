@@ -44,8 +44,11 @@ def self_conv(in_channels):
     return conv_op
 
 class UNet(nn.Module):
-    def __init__(self, input_channels, output_channels):
+    def __init__(self, max_num_points):
         super(UNet, self).__init__()
+
+        # max number of hint points
+        self.max_num_points = max_num_points
 
         # max pool layer
         self.max_pool2d = nn.MaxPool2d(kernel_size=2, stride=2)
@@ -82,12 +85,12 @@ class UNet(nn.Module):
         # image self convolution layers
         self.image_self_conv1 = self_conv(68)
         self.image_self_conv2 = self_conv(208)
-        self.image_self_conv3 = self_conv(320)
-        self.image_self_conv4 = self_conv(640)
+        self.image_self_conv3 = self_conv(416)
+        self.image_self_conv4 = self_conv(832)
         
 
         # output layer
-        self.out = nn.Conv2d(in_channels=64, out_channels=output_channels, kernel_size=1)
+        self.out = nn.Conv2d(in_channels=64, out_channels=3, kernel_size=1)
 
     def forward(self, images, hints):
 
@@ -164,13 +167,14 @@ if __name__ == '__main__':
     import matplotlib.pyplot as plt
     import numpy as np
 
-    input = torch.rand((2, 3, 512, 512))
+    images = torch.rand((5, 1, 512, 512))
+    hints = torch.rand((5, 3, 512, 512)) # b c h w
     #input = torch.rand((1, 3, 256, 256))
 
     input_channels=3
     output_channels=2
 
-    model = UNet(input_channels=input_channels, output_channels=output_channels)
+    model = UNet(max_num_points=1500)
 
     total_params = sum(p.numel() for p in model.parameters())
     print(f"{total_params:,} total parameters.")
@@ -178,14 +182,14 @@ if __name__ == '__main__':
     total_trainable_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
     print(f"{total_params:,} total trainable parameters.")
 
-    output = model(input)
+    output = model(images, hints)
     print(output.shape)
 
     supplementary = torch.rand(())
-    output_layer =  output.detach().numpy()[0].reshape((512,512,2))
+    output_layer =  output.detach().numpy()[0].reshape((512,512,3))
     output_layer = np.clip(output_layer, 0, 1)
     output_layer = (output_layer * 255).astype(np.uint8)
 
-    plt.imshow(output_layer[:,:,1], cmap='grey')
+    plt.imshow(output_layer, cmap='hsv')
     plt.axis('off')
     plt.show()
