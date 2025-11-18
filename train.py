@@ -85,9 +85,9 @@ def collate_function(batch):
 def load_dataset(train_folder, test_folder, val_folder, batch_size=batch_size, transform=None):
     if transform is None:
         transform = transforms.Compose([
-            transforms.Resize((256, 256)),
+            transforms.Resize((224, 224)),
             transforms.ToTensor(),
-            transforms.Normalize(mean=[0.5], std=[0.25])
+            #transforms.Normalize(mean=[0.5], std=[0.25])
         ])
 
     # create train, test, and val datasets
@@ -122,19 +122,19 @@ for epoch in range(num_epochs):
         # define input and 'labels'
         images = batch['images']
         #print(images.shape)
-        masked_images = batch['masked_images']
+        hints = batch['hints']
         #print(masked_images.shape)
 
         images = images.to(device)
-        masked_images = masked_images.to(device)
+        hints = hints.to(device)
         #model = model.to(device)
 
         optimizer.zero_grad()
         
         total_loss= 0.0
         #for j in range(expansion_ratio):
-        output = model(masked_images[:,:,:,:])
-        loss = criterion(output, images[:,:2,:,:])
+        output = model(images[:, :, :, 2], hints[:, :, :, :]) #batch_size, h, w, channels
+        loss = criterion(output, images[:, :, :, :])
         # batch_size, ?expansion ratio?, channels, h, w :: vs :: batch_size, channels, h, w
         #total_loss += loss
         

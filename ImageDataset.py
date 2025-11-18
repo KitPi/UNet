@@ -27,14 +27,14 @@ class ImageDataset(Dataset):
 
 
 def collate_function(batch):
-    masked_images=[]
+    hints=[]
     for image in batch:
         #expansion_list = []
         #for _ in range(expansion_ratio):
 
         mask = np.zeros((image.shape[1], image.shape[2]), dtype=np.float32)
 
-        num_points = np.random.randint(1,6)
+        num_points = np.random.randint(1, 15)
         total_points = image.shape[0] * image.shape[1]
 
         random_points = np.random.choice(total_points, size = num_points, replace=False)
@@ -43,17 +43,17 @@ def collate_function(batch):
             row, col = divmod(index, image.shape[2])
             mask[row, col] = 1
 
-        masked_image = image.clone()
-        masked_image[0] = masked_image[0] * mask
-        masked_image[1] = masked_image[1] * mask
+        hint = image.clone()
+        hint = hint * mask
+        #hint[:, :, 1] = hint[:, :, 1] * mask
 
             #expansion_list.append(masked_image)
             
-        masked_images.append(masked_image)
+        hints.append(hint)
 
     return {
-        "images": torch.stack(batch),
-        "masked_images": torch.stack(masked_images)
+        "images": torch.stack(image),
+        "hints": torch.stack(hints)
     }
 
 
