@@ -34,7 +34,7 @@ def collate_function(batch):
 
         mask = np.zeros((image.shape[1], image.shape[2]), dtype=np.float32)
 
-        max_num_points = 15000
+        max_num_points = 15000 # 1500, 150, 15
         num_points = np.random.randint(1, max_num_points) - 1
         total_points = image.shape[0] * image.shape[1]
 

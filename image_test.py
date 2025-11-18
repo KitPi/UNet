@@ -16,7 +16,7 @@ image = np.asarray(images[0])
 print(image.shape)
 
 mask = np.zeros((image.shape[0], image.shape[1]), dtype=np.float32)
-num_points = 50000 #np.random.randint(1,6)
+num_points = np.random.randint(1,15000)
 total_points = image.shape[0] * image.shape[1]
 random_points = np.random.choice(total_points, size = num_points, replace=False)
 

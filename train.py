@@ -19,7 +19,7 @@ writer = SummaryWriter(log_dir='runs')
 model = UNet(input_channels=3, output_channels=2)
 
 ## parameters
-batch_size = 32
+batch_size = 16
 train_folder = "dataset/train/"
 test_folder = "dataset/test/"
 val_folder = "dataset/val/"
