@@ -1,5 +1,6 @@
 from torch.utils.data import Dataset, DataLoader
 from torch import nn
+from torchmetrics import StructuralSimilarityIndexMeasure
 from torchvision import transforms
 import torch.optim as optim
 
@@ -15,8 +16,6 @@ from main import UNet
 
 writer = SummaryWriter(log_dir='runs')
 
-# load models
-model = UNet(input_channels=3, output_channels=2)
 
 ## parameters
 batch_size = 32
@@ -52,14 +51,16 @@ expansion_ratio = 4
 # takes a batch of images as a parameter
 
 def collate_function(batch):
-    masked_images=[]
+    hints=[]
+    images=[]
     for image in batch:
         #expansion_list = []
         #for _ in range(expansion_ratio):
 
         mask = np.zeros((image.shape[1], image.shape[2]), dtype=np.float32)
 
-        num_points = np.random.randint(1,6)
+        max_num_points = 150# 125# 100# 75# 50# 25# 15# 10# 5
+        num_points = np.random.randint(1, max_num_points) - 1
         total_points = image.shape[0] * image.shape[1]
 
         random_points = np.random.choice(total_points, size = num_points, replace=False)
@@ -68,21 +69,26 @@ def collate_function(batch):
             row, col = divmod(index, image.shape[2])
             mask[row, col] = 1
 
-        masked_image = image.clone()
-        masked_image[0] = masked_image[0] * mask
-        masked_image[1] = masked_image[1] * mask
+        # Create a masked image
+        hint = image.clone()
 
-            #expansion_list.append(masked_image)
+        # Apply the mask to all three channels of the HSV image
+        #for i in range(3):
+        hint[0, :, :] = image[0, :, :] * mask # c,h,w
+        hint[1, :, :] = image[1, :, :] * mask # c,h,w
+        hint[2, :, :] = image[2, :, :] * mask # c,h,w
             
-        masked_images.append(masked_image)
+        hints.append(hint)
+        images.append(image)
 
     return {
-        "images": torch.stack(batch),
-        "masked_images": torch.stack(masked_images)
+        "images": torch.stack(images),
+        "hints": torch.stack(hints)
     }
 
 # load dataset
-def load_dataset(train_folder, test_folder, val_folder, batch_size=batch_size, transform=None):
+#def load_dataset(train_folder, test_folder, val_folder, batch_size=batch_size, transform=None):
+def load_dataset(train_folder, batch_size=batch_size, transform=None):
     if transform is None:
         transform = transforms.Compose([
             transforms.Resize((224, 224)),
@@ -92,18 +98,19 @@ def load_dataset(train_folder, test_folder, val_folder, batch_size=batch_size, t
 
     # create train, test, and val datasets
     train_dataset = ImageDataset(train_folder, transform=transform)
-    test_dataset = ImageDataset(test_folder, transform=transform)
-    val_dataset = ImageDataset(val_folder, transform=transform)
+    #test_dataset = ImageDataset(test_folder, transform=transform)
+    #val_dataset = ImageDataset(val_folder, transform=transform)
 
     # load datasets
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, collate_fn=collate_function)
-    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=True, collate_fn=collate_function)
-    val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=True, collate_fn=collate_function)
+    #test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=True, collate_fn=collate_function)
+    #val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=True, collate_fn=collate_function)
 
-    return train_loader, test_loader, val_loader
+    return train_loader#, test_loader, val_loader
 
 # loading dataset
-train_loader, test_loader, val_loader = load_dataset(train_folder, test_folder, val_folder, batch_size)
+#train_loader, test_loader, val_loader = load_dataset(train_folder, test_folder, val_folder, batch_size)
+train_loader = load_dataset(train_folder, batch_size)
 
 # training loop
 num_epochs = 2
@@ -114,6 +121,7 @@ model.to(device)
 learning_rate = 5e-5 #0.001 #5e-5 
 optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 criterion = nn.MSELoss()
+ssim = StructuralSimilarityIndexMeasure().to(device)
 
 for epoch in range(num_epochs):
     model.train()
@@ -121,9 +129,9 @@ for epoch in range(num_epochs):
         # define loss function 
         # define input and 'labels'
         images = batch['images']
-        #print(images.shape)
+        #print(images[:, 2, :, :].reshape([batch_size, 1, 224, 224]).shape)
         hints = batch['hints']
-        #print(masked_images.shape)
+        #print(hints.shape)
 
         images = images.to(device)
         hints = hints.to(device)
@@ -133,8 +141,9 @@ for epoch in range(num_epochs):
         
         total_loss= 0.0
         #for j in range(expansion_ratio):
-        output = model(images[:, :, :, 2], hints) #batch_size, h, w, channels
-        loss = criterion(output, images)
+        output = model(images[:, 2, :, :].reshape([batch_size, 1, 224, 224]), hints) #batch_size, channels, h, w
+        #ssim_loss = 
+        loss = criterion(output, images) + 1.0 - ssim(output, images)
         # batch_size, ?expansion ratio?, channels, h, w :: vs :: batch_size, channels, h, w
         #total_loss += loss
         

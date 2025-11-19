@@ -44,11 +44,11 @@ def self_conv(in_channels):
     return conv_op
 
 class UNet(nn.Module):
-    def __init__(self, max_num_points):
+    def __init__(self):
         super(UNet, self).__init__()
 
         # max number of hint points
-        self.max_num_points = max_num_points
+        #self.max_num_points = max_num_points
 
         # max pool layer
         self.max_pool2d = nn.MaxPool2d(kernel_size=2, stride=2)
@@ -167,7 +167,7 @@ if __name__ == '__main__':
     import matplotlib.pyplot as plt
     import numpy as np
 
-    images = torch.rand((5, 1, 512, 512))
+    images = torch.rand((5, 512, 512))
     hints = torch.rand((5, 3, 512, 512)) # b c h w
     #input = torch.rand((1, 3, 256, 256))
 

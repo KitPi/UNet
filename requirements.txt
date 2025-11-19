@@ -1,4 +1,5 @@
 torch
+torchmetrics
 numpy
 matplotlib
 scikit-image

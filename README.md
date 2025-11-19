@@ -56,10 +56,11 @@ Input | Epoch 1 | Epoch 2 | Epoch 3 | Epoch 4 | Epoch 5 | Ground Truth
 ## Proposal
  - [x] Removed Image input and targets Normalized: $\mu$: 0.5, $\sigma$ 0.25 
  - [x] No normalisation 
- - [ ] Improved Loss function: MSE + SSIM
+ - [x] Improved Loss function: MSE + SSIM
  - [x] BatchNorm on down conv, hints down conv, up conv, and hints up conv
  - [x] Skip Connection Self Convolution on level 2, 3, 4, 5
  - [X] Hintegration: Convolve hints, then integrate then convolve colour hints alongside down convolutions.
  - [ ] Dropout (not from school, from network)
  - [ ] Variable learning rate
  - [ ] Variable hints per epoch
+ - [x] 51,086,771 total trainable parameters.

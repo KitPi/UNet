@@ -66,7 +66,7 @@ def load_dataset(images_path, batch_size, transform=None):
         transform = transforms.Compose([
             transforms.Resize((256, 256)),
             transforms.ToTensor(),
-            transforms.Normalize(mean=[0.5], std=[0.25])
+            #transforms.Normalize(mean=[0.5], std=[0.25])
         ])
 
     test_dataset = ImageDataset(images_path, transform=transform)
