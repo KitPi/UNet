@@ -25,7 +25,8 @@ main_folder_path = 'dataset/train/'
 
 def integrity(dataset_path):
     # Iterate over all files in the folder
-    for filename in os.listdir(dataset_path):
+    length = len(os.listdir(dataset_path))
+    for i, filename in enumerate(os.listdir(dataset_path)):
         # Check if the file is an image (e.g. JPEG, PNG, etc.)
         if filename.lower().endswith(('.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff')):
             # Try to open the image file
@@ -33,6 +34,8 @@ def integrity(dataset_path):
                 img = Image.open(os.path.join(dataset_path, filename)).convert('HSV')
                 img.verify()
                 #print(f"{filename} is valid")
+                if i % 5000 == 0: 
+                    print(f'file number: {i} of {length}')
             except IOError:
                 print(f"{filename} is corrupted or invalid")
 
@@ -41,3 +44,7 @@ def integrity(dataset_path):
 # merge_subfolders(main_folder_path)
 
 integrity(main_folder_path)
+
+# +++++ +++++ +++++ ===== ===== ===== # +++++ +++++ +++++ ===== ===== ===== # +++++ +++++ +++++ ===== ===== ===== 
+# Results
+# n07565083_6849.JPEG is corrupted or invalid
