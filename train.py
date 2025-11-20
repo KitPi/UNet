@@ -113,7 +113,7 @@ def load_dataset(train_folder, batch_size=batch_size, transform=None):
 train_loader = load_dataset(train_folder, batch_size)
 
 # training loop
-num_epochs = 2
+num_epochs = 1
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model = UNet()#input_channels=3, output_channels=2)
 model.to(device)
@@ -129,6 +129,7 @@ for epoch in range(num_epochs):
         # define loss function 
         # define input and 'labels'
         images = batch['images']
+        length = len(images)
         #print(images[:, 2, :, :].reshape([batch_size, 1, 224, 224]).shape)
         hints = batch['hints']
         #print(hints.shape)
@@ -141,7 +142,7 @@ for epoch in range(num_epochs):
         
         total_loss= 0.0
         #for j in range(expansion_ratio):
-        output = model(images[:, 2, :, :].reshape([batch_size, 1, 224, 224]), hints) #batch_size, channels, h, w
+        output = model(images[:, 2, :, :].reshape([length, 1, 224, 224]), hints) #batch_size, channels, h, w
         #ssim_loss = 
         loss = criterion(output, images) + 1.0 - ssim(output, images)
         # batch_size, ?expansion ratio?, channels, h, w :: vs :: batch_size, channels, h, w

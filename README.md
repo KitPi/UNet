@@ -64,3 +64,7 @@ Input | Epoch 1 | Epoch 2 | Epoch 3 | Epoch 4 | Epoch 5 | Ground Truth
  - [ ] Variable learning rate
  - [ ] Variable hints per epoch
  - [x] 51,086,771 total trainable parameters.
+
+ ## Epoch 1
+ Num points = 150
+ 

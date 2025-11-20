@@ -92,7 +92,8 @@ def main():
     
     images = batch["images"][:num_example_images]
 
-    masked_images = batch["masked_images"][:num_example_images]
+    #masked_images = batch["masked_images"][:num_example_images]
+    hints = batch["hints"][:num_example_images]
     #print(masked_images)
     mean = 0.5
     std = 0.25
@@ -106,7 +107,7 @@ def main():
     for j in range(epochs):
         # load model
         #weights_path = "model.pth"
-        model = UNet(input_channels=3, output_channels=2)
+        model = UNet()
         try:
             weights = torch.load(f'output/model_epoch_{j+1}.pth', map_location=device, weights_only=False)
         except FileNotFoundError:
@@ -116,9 +117,10 @@ def main():
         model.load_state_dict(weights)#.state_dict())
         model.to(device)
 
-        device_masked_images = masked_images.to(device)
+        device_images = hints
+        device_hints = hints.to(device)
 
-        output = model(device_masked_images)
+        output = model(device_hints)
 
         inferred_images = output.cpu()
 

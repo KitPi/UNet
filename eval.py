@@ -1,5 +1,6 @@
 from ImageDataset import * 
 from torch import nn
+from torchmetrics import StructuralSimilarityIndexMeasure
 from main import UNet
 import csv
 
@@ -23,6 +24,8 @@ def main():
     # define criterion
     criterion = nn.MSELoss()
 
+    ssim = StructuralSimilarityIndexMeasure().to(device)
+
     # load image datasets
     test_loader = load_dataset(images_path=test_path, batch_size=batch_size)
     eval_loader = load_dataset(images_path=eval_path, batch_size=batch_size)
@@ -32,7 +35,7 @@ def main():
     # model 
     write_file = []
     for j in range(num_models):
-        model = UNet(input_channels=3, output_channels=2)
+        model = UNet()
         print(f'loading model: model_epoch_{j+1}')
         try:
             weights = torch.load(f'output/model_epoch_{j+1}.pth', map_location=device, weights_only=False)
@@ -51,14 +54,16 @@ def main():
         with torch.no_grad():
             for i, batch in enumerate(eval_loader):
                 images = batch['images']
-                images = images.to(device)
+                device_images = images.to(device)
 
-                masked_images = batch['masked_images']
-                device_masked_images = masked_images.to(device)
+                hints = batch['hints']
+                device_hints = hints.to(device)
 
                 # calculate tloss
-                output = model(device_masked_images[:, :, :, :])
-                loss = criterion(output, images[:, :2, :, :])
+                #output = model(device_hints[:, :, :, :])
+                output = model(device_images[:, 2, :, :].reshape([batch_size, 1, 224, 224]), device_hints) #batch_size, channels, h, w
+                #loss = criterion(output, device_images[:, :2, :, :])
+                loss = criterion(output, images) + 1.0 - ssim(output, images)
                 total_loss += loss.item()
 
                 if i % batch_size == 0:
