@@ -28,6 +28,7 @@ class ImageDataset(Dataset):
 
 def collate_function(batch):
     hints=[]
+    images=[]
     for image in batch:
         #expansion_list = []
         #for _ in range(expansion_ratio):
@@ -45,30 +46,40 @@ def collate_function(batch):
             mask[row, col] = 1
 
         # Create a masked image
-        hint = image.copy()
+        hint = image.clone()
 
         # Apply the mask to all three channels of the HSV image
         #for i in range(3):
-        hint[:, :, 0] = image[:, :, 0] * mask # h,w,c
-        hint[:, :, 1] = image[:, :, 1] * mask # h,w,c
-        hint[:, :, 2] = image[:, :, 2] * mask # h,w,c
+        hint[0, :, :] = image[0, :, :] * mask # c,h,w
+        hint[1, :, :] = image[1, :, :] * mask # c,h,w
+        hint[2, :, :] = image[2, :, :] * mask # c,h,w
             
         hints.append(hint)
+        images.append(image)
 
     return {
-        "images": torch.stack(batch),
+        "images": torch.stack(images),
         "hints": torch.stack(hints)
     }
 
-
-def load_dataset(images_path, batch_size, transform=None):
+# load dataset
+#def load_dataset(train_folder, test_folder, val_folder, batch_size=batch_size, transform=None):
+def load_dataset(train_folder, batch_size, transform=None):
     if transform is None:
         transform = transforms.Compose([
-            transforms.Resize((256, 256)),
+            transforms.Resize((224, 224)),
             transforms.ToTensor(),
-            #transforms.Normalize(mean=[0.5], std=[0.25])
+            transforms.Normalize(mean=[0.0], std=[0.5])
         ])
 
-    test_dataset = ImageDataset(images_path, transform=transform)
-    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=True, collate_fn=collate_function)
-    return test_loader
+    # create train, test, and val datasets
+    train_dataset = ImageDataset(train_folder, transform=transform)
+    #test_dataset = ImageDataset(test_folder, transform=transform)
+    #val_dataset = ImageDataset(val_folder, transform=transform)
+
+    # load datasets
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, collate_fn=collate_function)
+    #test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=True, collate_fn=collate_function)
+    #val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=True, collate_fn=collate_function)
+
+    return train_loader#, test_loader, val_loader

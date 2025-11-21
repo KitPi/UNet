@@ -6,11 +6,11 @@ import torch.nn as nn
 def down_convolution(in_channels, out_channels):
     conv_op = nn.Sequential(
         nn.Conv2d(in_channels, out_channels, kernel_size = 3, padding = 1),
-        nn.BatchNorm2d(out_channels),
         nn.ReLU(inplace = True),
+        nn.Dropout(0.2),
         nn.Conv2d(out_channels, out_channels, kernel_size = 3, padding = 1),
-        nn.BatchNorm2d(out_channels),
-        nn.ReLU(inplace = True)
+        nn.ReLU(inplace = True),
+        nn.BatchNorm2d(out_channels)
     ) 
     return conv_op
 
@@ -52,6 +52,8 @@ class UNet(nn.Module):
 
         # max pool layer
         self.max_pool2d = nn.MaxPool2d(kernel_size=2, stride=2)
+
+        self.dropout = nn.Dropout(0.2)
 
         # down convolution layers
         self.down_convolution_1 = down_convolution(4, 64)
@@ -117,24 +119,29 @@ class UNet(nn.Module):
         down_1 = self.down_convolution_1(in_1) # h, w, 64
         across1 = self.image_self_conv1(torch.cat([down_1, in_1], 1)) # h, w, 68 = ( 64 + 4 )
         down_2 = self.max_pool2d(down_1) # h/2, w/2, 64
+        #down_2 = self.dropout(down_2)
 
         in_2 = torch.cat([hints_4, down_2], 1) # h/2, w/2, 80 = ( 16 + 64 )
         
         down_3 = self.down_convolution_2(in_2) # h/2, w/2, 128
         across2 = self.image_self_conv2(torch.cat([down_3, in_2], 1)) # h/2, w/2, 208 = ( 128 + 80 )
         down_4 = self.max_pool2d(down_3) # h/4, w/4, 128
+        #down_4 = self.dropout(down_4)
 
         in_3 = torch.cat([hints_6, down_4], 1) # h/4, w/4, 160 = ( 32 + 128 )
 
         down_5 = self.down_convolution_3(in_3) # h/4, w/4, 256
         across3 = self.image_self_conv3(torch.cat([down_5, in_3], 1)) # h/4, w/4, 416 = ( 256 + 160 )
         down_6 = self.max_pool2d(down_5) # h/8, w/8, 256
+        #down_6 = self.dropout(down_6)
+
 
         in_4 = torch.cat([hints_8, down_6], 1) # h/8, w/8, 320 = ( 64 + 256 )
 
         down_7 = self.down_convolution_4(in_4) # h/8, w/8, 512
         across4 = self.image_self_conv4(torch.cat([down_7, in_4], 1)) # h/8, w/8, 832 = ( 512 + 320 )
         down_8 = self.max_pool2d(down_7) # h/16, w/16, 512
+        #down_8 = self.dropout(down_8)
 
         in_5 = torch.cat([hints_10, down_8], 1) # h/16, w/16, 640 = ( 128 + 512 )
 
@@ -167,14 +174,14 @@ if __name__ == '__main__':
     import matplotlib.pyplot as plt
     import numpy as np
 
-    images = torch.rand((5, 512, 512))
-    hints = torch.rand((5, 3, 512, 512)) # b c h w
+    images = torch.rand((5, 1, 224, 224))
+    hints = torch.rand((5, 3, 224, 224)) # b c h w
     #input = torch.rand((1, 3, 256, 256))
 
     input_channels=3
     output_channels=2
 
-    model = UNet(max_num_points=1500)
+    model = UNet()
 
     total_params = sum(p.numel() for p in model.parameters())
     print(f"{total_params:,} total parameters.")
@@ -182,11 +189,11 @@ if __name__ == '__main__':
     total_trainable_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
     print(f"{total_params:,} total trainable parameters.")
 
-    output = model(images, hints)
+    output = model(images, hints) #batch_size, channels, h, w
     print(output.shape)
 
     supplementary = torch.rand(())
-    output_layer =  output.detach().numpy()[0].reshape((512,512,3))
+    output_layer =  output.detach().numpy()[0].reshape((224,224,3))
     output_layer = np.clip(output_layer, 0, 1)
     output_layer = (output_layer * 255).astype(np.uint8)
 

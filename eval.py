@@ -8,11 +8,11 @@ import torch
 
 # +++++ ===== +++++ ===== +++++ ===== +++++ ===== 
 
-test_path = "dataset/test"
+#test_path = "dataset/test"
 eval_path = "dataset/val"
 write_file_path = "examples/write_file.csv"
 batch_size = 32
-num_models = 5
+num_models = 1
 eval_size = 256
 # +++++ ===== +++++ ===== +++++ ===== +++++ ===== 
 
@@ -27,7 +27,7 @@ def main():
     ssim = StructuralSimilarityIndexMeasure().to(device)
 
     # load image datasets
-    test_loader = load_dataset(images_path=test_path, batch_size=batch_size)
+    #test_loader = load_dataset(images_path=test_path, batch_size=batch_size)
     eval_loader = load_dataset(images_path=eval_path, batch_size=batch_size)
 
 
@@ -54,6 +54,7 @@ def main():
         with torch.no_grad():
             for i, batch in enumerate(eval_loader):
                 images = batch['images']
+                length = len(images)
                 device_images = images.to(device)
 
                 hints = batch['hints']
@@ -61,9 +62,10 @@ def main():
 
                 # calculate tloss
                 #output = model(device_hints[:, :, :, :])
-                output = model(device_images[:, 2, :, :].reshape([batch_size, 1, 224, 224]), device_hints) #batch_size, channels, h, w
+                
+                output = model(device_images[:, 2, :, :].reshape([length, 1, 224, 224]), device_hints) #batch_size, channels, h, w
                 #loss = criterion(output, device_images[:, :2, :, :])
-                loss = criterion(output, images) + 1.0 - ssim(output, images)
+                loss = criterion(output, images) + 1.0 - ssim(output, images) #+ criterion(output[:,:2,:,:], images[:,:2,:,:])
                 total_loss += loss.item()
 
                 if i % batch_size == 0:
@@ -116,6 +118,6 @@ def graph(read_file_path):
 
     plt.savefig("examples/eval_fig.png")
 
-#main()
-graph(write_file_path)
+main()
+#graph(write_file_path)
 
