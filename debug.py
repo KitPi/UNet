@@ -118,9 +118,11 @@ def main():
         #weights_path = "model.pth"
         model = UNet()
         try:
-            weights = torch.load(f'output/checkpoint_{1500}.pth', map_location=device, weights_only=False)
+            weights = torch.load(f'output/checkpoint_{12000}.pth', map_location=device, weights_only=False)
+            #weights = torch.load(f'output/model_epoch_1.pth', map_location=device, weights_only=False)
         except FileNotFoundError:
-            print(f"Model: output/checkpoint_{1500}.pth does not exist.")
+            print(f"Model: output/checkpoint_{12000}.pth does not exist.")
+            #print(f"Model: output/model_epoch_1.pth does not exist.")
             raise
         
         model.load_state_dict(weights)#.state_dict())
@@ -133,9 +135,10 @@ def main():
 
         output = model(device_images[:, 2, :, :].reshape([length, 1, 224, 224]), device_hints) #batch_size, channels, h, w
 
-
-        #loss = criterion(output, device_images) + 1.0 - ssim(output, device_images) #+ criterion(output[:,:2,:,:], device_images[:,:2,:,:])
-        loss = 1.0 - ssim(output, device_images)
+        alpha = 0.5
+        beta = 0.5
+        loss = alpha * criterion(output, device_images) + beta * (1.0 - ssim(output, device_images)) #+ criterion(output[:,:2,:,:], device_images[:,:2,:,:])
+        #loss = 1.0 - ssim(output, device_images)
 
         #loss = criterion(output[:,:2,:,:], device_images[:,:2,:,:]) + 1.0 - ssim(output[:,:2,:,:], device_images[:,:2,:,:])
         #loss = 1.0 - ssim(output, device_images)

@@ -116,6 +116,14 @@ train_loader = load_dataset(train_folder, batch_size)
 num_epochs = 1
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model = UNet()#input_channels=3, output_channels=2)
+
+#try:
+#    weights = torch.load(f'output/checkpoint_{1500}.pth', map_location=device, weights_only=False)
+#except FileNotFoundError:
+#    print(f"Model: output/checkpoint_{1500}.pth does not exist.")
+#    raise
+#model.load_state_dict(weights)#.state_dict())
+
 model.to(device)
 
 learning_rate = 5e-5 
@@ -134,7 +142,7 @@ for epoch in range(num_epochs):
         hints = batch['hints']
         #print(hints.shape)
 
-        images = images.to(device)
+        device_images = images.to(device)
         hints = hints.to(device)
         #model = model.to(device)
 
@@ -144,9 +152,9 @@ for epoch in range(num_epochs):
         #for j in range(expansion_ratio):
         output = model(images[:, 2, :, :].reshape([length, 1, 224, 224]), hints) #batch_size, channels, h, w
         #ssim_loss = 
-        #alpha = 0.5
-        #loss = criterion(output, images) + alpha * (1.0 - ssim(output, images)) #+ criterion(output[:,:2,:,:], images[:,:2,:,:])
-        loss = 1.0 - ssim(output, images)
+        alpha = 0.5
+        beta = 0.5
+        loss = alpha * criterion(output, device_images) + beta * (1.0 - ssim(output, device_images))
         #loss = criterion(output[:,:2,:,:], images[:,:2,:,:]) + 1.0 - ssim(output[:,:2,:,:], images[:,:2,:,:])
         # batch_size, ?expansion ratio?, channels, h, w :: vs :: batch_size, channels, h, w
         #total_loss += loss
@@ -160,7 +168,7 @@ for epoch in range(num_epochs):
         writer.add_scalar('Loss/train', loss.item(), epoch * len(train_loader) + i)
 
 
-        if i % 1500 ==0:
+        if i % 10000 ==0:
             print(f'Checkpoint: [{epoch+1}/{num_epochs}], Batch [{i}]')
             torch.save(model.state_dict(), output_dir + f'checkpoint_{i}.pth')
 
