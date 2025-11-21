@@ -63,7 +63,7 @@ def main():
                 # calculate tloss
                 #output = model(device_hints[:, :, :, :])
                 
-                output = model(device_images[:, 2, :, :].reshape([length, 1, 224, 224]), device_hints) #batch_size, channels, h, w
+                output = model(device_images[:, 0, :, :].reshape([length, 1, 224, 224]), device_hints) #batch_size, channels, h, w
                 #loss = criterion(output, device_images[:, :2, :, :])
                 loss = criterion(output, images) + 1.0 - ssim(output, images) #+ criterion(output[:,:2,:,:], images[:,:2,:,:])
                 total_loss += loss.item()

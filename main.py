@@ -30,7 +30,7 @@ def up_convolution(in_channels, out_channels):
         nn.BatchNorm2d(out_channels),
         nn.Conv2d(out_channels, out_channels, kernel_size = 3, padding = 1),
         nn.ReLU(inplace = True),
-        nn.BatchNorm2d(out_channels),
+        #nn.BatchNorm2d(out_channels),
     ) 
     return conv_op
 
@@ -63,10 +63,10 @@ class UNet(nn.Module):
         self.down_convolution_5 = down_convolution(640, 1024)
 
         # hints down convolution layers
-        self.hint_down_conv1 = hints_down_convolution(3, 16) # h, w, 16
-        self.hint_down_conv2 = hints_down_convolution(16, 32) # h/2, w/2, 32
-        self.hint_down_conv3 = hints_down_convolution(32, 64)
-        self.hint_down_conv4 = hints_down_convolution(64, 128)
+        #self.hint_down_conv1 = hints_down_convolution(3, 16) # h, w, 16
+        #self.hint_down_conv2 = hints_down_convolution(16, 32) # h/2, w/2, 32
+        #self.hint_down_conv3 = hints_down_convolution(32, 64)
+        #self.hint_down_conv4 = hints_down_convolution(64, 128)
 
         # up convolution layers
         self.up_convolution_1 = up_convolution(1344, 512)
@@ -92,7 +92,7 @@ class UNet(nn.Module):
         
 
         # output layer
-        self.out = nn.Conv2d(in_channels=64, out_channels=3, kernel_size=1)
+        self.out = nn.Conv2d(in_channels=64, out_channels=2, kernel_size=1)
 
     def forward(self, images, hints):
 
@@ -100,17 +100,17 @@ class UNet(nn.Module):
         hints_2 = self.hint_self_conv(hints) # h, w, 3
         #hints_2 = self.max_pool2d(hints_1) # h/2, w/2, 3
 
-        hints_3 = self.hint_down_conv1(hints_2) # h, w, 16
-        hints_4 = self.max_pool2d(hints_3) # h/2, w/2, 16
-
-        hints_5 = self.hint_down_conv2(hints_4) # h/2, w/2, 32
-        hints_6 = self.max_pool2d(hints_5) # h/4, w/4, 32
-
-        hints_7 = self.hint_down_conv3(hints_6) # h/4, w/4, 64
-        hints_8 = self.max_pool2d(hints_7) # h/8, w/8, 64
-
-        hints_9 = self.hint_down_conv4(hints_8) # h/8, w/8, 128
-        hints_10 = self.max_pool2d(hints_9) # h/16, w/16, 128
+        #hints_3 = self.hint_down_conv1(hints_2) # h, w, 16
+        #hints_4 = self.max_pool2d(hints_3) # h/2, w/2, 16
+#
+        #hints_5 = self.hint_down_conv2(hints_4) # h/2, w/2, 32
+        #hints_6 = self.max_pool2d(hints_5) # h/4, w/4, 32
+#
+        #hints_7 = self.hint_down_conv3(hints_6) # h/4, w/4, 64
+        #hints_8 = self.max_pool2d(hints_7) # h/8, w/8, 64
+#
+        #hints_9 = self.hint_down_conv4(hints_8) # h/8, w/8, 128
+        #hints_10 = self.max_pool2d(hints_9) # h/16, w/16, 128
 
         # concat hints and images
         in_1 = torch.cat([hints_2, images], 1) # h, w, 4 = ( 3 + 1 )
@@ -121,31 +121,31 @@ class UNet(nn.Module):
         down_2 = self.max_pool2d(down_1) # h/2, w/2, 64
         #down_2 = self.dropout(down_2)
 
-        in_2 = torch.cat([hints_4, down_2], 1) # h/2, w/2, 80 = ( 16 + 64 )
+        #in_2 = torch.cat([hints_4, down_2], 1) # h/2, w/2, 80 = ( 16 + 64 )
         
-        down_3 = self.down_convolution_2(in_2) # h/2, w/2, 128
-        across2 = self.image_self_conv2(torch.cat([down_3, in_2], 1)) # h/2, w/2, 208 = ( 128 + 80 )
+        down_3 = self.down_convolution_2(down_2) # h/2, w/2, 128
+        across2 = self.image_self_conv2(down_2) # h/2, w/2, 208 = ( 128 + 80 )
         down_4 = self.max_pool2d(down_3) # h/4, w/4, 128
         #down_4 = self.dropout(down_4)
 
-        in_3 = torch.cat([hints_6, down_4], 1) # h/4, w/4, 160 = ( 32 + 128 )
+        #in_3 = torch.cat([hints_6, down_4], 1) # h/4, w/4, 160 = ( 32 + 128 )
 
-        down_5 = self.down_convolution_3(in_3) # h/4, w/4, 256
-        across3 = self.image_self_conv3(torch.cat([down_5, in_3], 1)) # h/4, w/4, 416 = ( 256 + 160 )
+        down_5 = self.down_convolution_3(down_4) # h/4, w/4, 256
+        across3 = self.image_self_conv3(down_5) # h/4, w/4, 416 = ( 256 + 160 )
         down_6 = self.max_pool2d(down_5) # h/8, w/8, 256
         #down_6 = self.dropout(down_6)
 
 
-        in_4 = torch.cat([hints_8, down_6], 1) # h/8, w/8, 320 = ( 64 + 256 )
+        #in_4 = torch.cat([hints_8, down_6], 1) # h/8, w/8, 320 = ( 64 + 256 )
 
-        down_7 = self.down_convolution_4(in_4) # h/8, w/8, 512
-        across4 = self.image_self_conv4(torch.cat([down_7, in_4], 1)) # h/8, w/8, 832 = ( 512 + 320 )
+        down_7 = self.down_convolution_4(down_6) # h/8, w/8, 512
+        across4 = self.image_self_conv4(down_6) # h/8, w/8, 832 = ( 512 + 320 )
         down_8 = self.max_pool2d(down_7) # h/16, w/16, 512
         #down_8 = self.dropout(down_8)
 
-        in_5 = torch.cat([hints_10, down_8], 1) # h/16, w/16, 640 = ( 128 + 512 )
+        #in_5 = torch.cat([hints_10, down_8], 1) # h/16, w/16, 640 = ( 128 + 512 )
 
-        down_9 = self.down_convolution_5(in_5) # h/16, w/16, 1024
+        down_9 = self.down_convolution_5(down_8) # h/16, w/16, 1024
 
         # up decoding
         up_1 = self.up_transpose_1(down_9) # h/8, w/8, 512
@@ -197,6 +197,6 @@ if __name__ == '__main__':
     output_layer = np.clip(output_layer, 0, 1)
     output_layer = (output_layer * 255).astype(np.uint8)
 
-    plt.imshow(output_layer, cmap='hsv')
+    plt.imshow(output_layer, cmap='LAB')
     plt.axis('off')
     plt.show()

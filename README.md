@@ -29,10 +29,10 @@ Modified to take greyscale photos as input, then output LUV colorised photos
 
 ## Training
 Training loss (smoothed) / Time
-![Training loss](<runs/Pasted image.png>)
+![Training loss](<runs/old/Pasted image.png>)
 
 ## Results
-![Results](examples/_combined_img.png)
+![Results](examples/old/_combined_img.png)
 
 
 Input | Epoch 1 | Epoch 2 | Epoch 3 | Epoch 4 | Epoch 5 | Ground Truth 
@@ -53,6 +53,7 @@ Input | Epoch 1 | Epoch 2 | Epoch 3 | Epoch 4 | Epoch 5 | Ground Truth
 -----
 
 # Version 2 
+Highly experimental trails of different error functions, normalisation methods, droput / no dropout
 ## Proposal
  - [x] Removed Image input and targets Normalized: $\mu$: 0.5, $\sigma$ 0.25 
  - [x] No normalisation 
@@ -68,3 +69,11 @@ Input | Epoch 1 | Epoch 2 | Epoch 3 | Epoch 4 | Epoch 5 | Ground Truth
  ## Epoch 1
  Num points = 150
  
+ -----
+
+ # Version 3
+ ## Proposal
+ - [x] Convert to LAB colorspace
+ - [x] 2 Channel output
+ - [ ] K-means global hints
+ - [ ] Sobel-MSE(O,Y), Hubert(O,Y) loss functions
