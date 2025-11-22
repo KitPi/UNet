@@ -93,7 +93,7 @@ for epoch in range(num_epochs):
         #ssim_loss = 
         alpha = 0.5
         beta = 0.5
-        loss = alpha * criterion(output, device_images[:,1:,:,:]) + beta * (1.0 - ssim(output, device_images[:,1:,:,:]))
+        loss = alpha * criterion(output, device_images[:,1:,:,:])# + beta * (1.0 - ssim(output, device_images[:,1:,:,:]))
         #loss = criterion(output[:,:2,:,:], images[:,:2,:,:]) + 1.0 - ssim(output[:,:2,:,:], images[:,:2,:,:])
         # batch_size, ?expansion ratio?, channels, h, w :: vs :: batch_size, channels, h, w
         #total_loss += loss

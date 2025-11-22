@@ -57,10 +57,10 @@ class UNet(nn.Module):
 
         # down convolution layers
         self.down_convolution_1 = down_convolution(4, 64)
-        self.down_convolution_2 = down_convolution(80, 128)
-        self.down_convolution_3 = down_convolution(160, 256)
-        self.down_convolution_4 = down_convolution(320, 512)
-        self.down_convolution_5 = down_convolution(640, 1024)
+        self.down_convolution_2 = down_convolution(64, 128)
+        self.down_convolution_3 = down_convolution(128, 256)
+        self.down_convolution_4 = down_convolution(256, 512)
+        self.down_convolution_5 = down_convolution(512, 1024)
 
         # hints down convolution layers
         #self.hint_down_conv1 = hints_down_convolution(3, 16) # h, w, 16
@@ -69,10 +69,10 @@ class UNet(nn.Module):
         #self.hint_down_conv4 = hints_down_convolution(64, 128)
 
         # up convolution layers
-        self.up_convolution_1 = up_convolution(1344, 512)
-        self.up_convolution_2 = up_convolution(672, 256)
-        self.up_convolution_3 = up_convolution(336, 128)
-        self.up_convolution_4 = up_convolution(132, 64)
+        self.up_convolution_1 = up_convolution(1024, 512)
+        self.up_convolution_2 = up_convolution(512, 256)
+        self.up_convolution_3 = up_convolution(256, 128)
+        self.up_convolution_4 = up_convolution(128, 64)
 
         # up transpose layers
         # H_out = (H_in + 2 * padding - kernel_size) / (stride) + 1
@@ -85,10 +85,10 @@ class UNet(nn.Module):
         self.hint_self_conv = self_conv(3)
 
         # image self convolution layers
-        self.image_self_conv1 = self_conv(68)
-        self.image_self_conv2 = self_conv(208)
-        self.image_self_conv3 = self_conv(416)
-        self.image_self_conv4 = self_conv(832)
+        self.image_self_conv1 = self_conv(64)
+        self.image_self_conv2 = self_conv(128)
+        self.image_self_conv3 = self_conv(256)
+        self.image_self_conv4 = self_conv(512)
         
 
         # output layer
@@ -117,14 +117,14 @@ class UNet(nn.Module):
         
         # down encoding
         down_1 = self.down_convolution_1(in_1) # h, w, 64
-        across1 = self.image_self_conv1(torch.cat([down_1, in_1], 1)) # h, w, 68 = ( 64 + 4 )
+        across1 = self.image_self_conv1(down_1) # h, w, 68 = ( 64 + 4 )
         down_2 = self.max_pool2d(down_1) # h/2, w/2, 64
         #down_2 = self.dropout(down_2)
 
         #in_2 = torch.cat([hints_4, down_2], 1) # h/2, w/2, 80 = ( 16 + 64 )
         
         down_3 = self.down_convolution_2(down_2) # h/2, w/2, 128
-        across2 = self.image_self_conv2(down_2) # h/2, w/2, 208 = ( 128 + 80 )
+        across2 = self.image_self_conv2(down_3) # h/2, w/2, 208 = ( 128 + 80 )
         down_4 = self.max_pool2d(down_3) # h/4, w/4, 128
         #down_4 = self.dropout(down_4)
 
@@ -139,7 +139,7 @@ class UNet(nn.Module):
         #in_4 = torch.cat([hints_8, down_6], 1) # h/8, w/8, 320 = ( 64 + 256 )
 
         down_7 = self.down_convolution_4(down_6) # h/8, w/8, 512
-        across4 = self.image_self_conv4(down_6) # h/8, w/8, 832 = ( 512 + 320 )
+        across4 = self.image_self_conv4(down_7) # h/8, w/8, 832 = ( 512 + 320 )
         down_8 = self.max_pool2d(down_7) # h/16, w/16, 512
         #down_8 = self.dropout(down_8)
 

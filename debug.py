@@ -95,7 +95,8 @@ def main():
 
         alpha = 0.5
         beta = 0.5
-        loss = alpha * criterion(output, device_images) + beta * (1.0 - ssim(output, device_images)) #+ criterion(output[:,:2,:,:], device_images[:,:2,:,:])
+        #loss = alpha * criterion(output, device_images) + beta * (1.0 - ssim(output, device_images)) #+ criterion(output[:,:2,:,:], device_images[:,:2,:,:])
+        loss = alpha * criterion(output, device_images[:,1:,:,:]) + beta * (1.0 - ssim(output, device_images[:,1:,:,:]))
         #loss = 1.0 - ssim(output, device_images)
 
         #loss = criterion(output[:,:2,:,:], device_images[:,:2,:,:]) + 1.0 - ssim(output[:,:2,:,:], device_images[:,:2,:,:])
@@ -130,19 +131,22 @@ def main():
 
             # image-tensor to images
             #image = transforms.functional.to_pil_image(image, mode="LAB")
-            lab_image = image.permute(1, 2, 0).detach().numpy()
+            output = np.zeros([3,224,224])
+            #lab_image = image.detach().numpy()
             
-            lab_image[:,:,0] *= 50  # Scale L* channel
-            lab_image[:,:,1] = (lab_image[:,:,1] * 63) - 64  # Scale a* channel
-            lab_image[:,:,2] = (lab_image[:,:,2] * 63) - 64  # Scale b* channel
+            output[0,:,:] = images[i,0,:,:].detach().numpy()*50  # Scale L* channel
+            output[1,:,:] = (image[0,:,:].detach().numpy() * 63) - 64  # Scale a* channel
+            output[2,:,:] = (image[1,:,:].detach().numpy() * 63) - 64  # Scale b* channel
+
+            output = output.transpose(1,2,0)
 
             #image[:2,:,:] = images[i,:2,:,:]
-            rgb_image = color.lab2rgb(lab_image)
+            rgb_image = color.lab2rgb(output)
 
 
-            rgb_image_uint8 = (rgb_image * 255).astype(np.uint8)
-            image = image_rgb = Image.fromarray(rgb_image_uint8)
-            image.show()
+            rgb_image_uint8 = (rgb_image*255).astype(np.uint8)
+            image_rgb = Image.fromarray(rgb_image_uint8)
+            image_rgb.show()
 
             #masked_image = transforms.functional.to_pil_image(masked_image, mode="LAB")
             #inferred_image = transforms.functional.to_pil_image(inferred_image, mode="LAB")
