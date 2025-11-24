@@ -79,3 +79,4 @@ Highly experimental trails of different error functions, normalisation methods, 
  - [ ] Sobel-MSE(O,Y),
  - [ ] Hubert(O,Y) loss functions: https://docs.pytorch.org/docs/stable/generated/torch.nn.HuberLoss.html
  - [x] Dropout
+ - [ ] Remove MaxPooling, downsample instead
