@@ -76,4 +76,6 @@ Highly experimental trails of different error functions, normalisation methods, 
  - [x] Convert to LAB colorspace
  - [x] 2 Channel output
  - [ ] K-means global hints
- - [ ] Sobel-MSE(O,Y), Hubert(O,Y) loss functions
+ - [ ] Sobel-MSE(O,Y),
+ - [ ] Hubert(O,Y) loss functions: https://docs.pytorch.org/docs/stable/generated/torch.nn.HuberLoss.html
+ - [x] Dropout
