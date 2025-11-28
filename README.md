@@ -73,6 +73,7 @@ Highly experimental trails of different error functions, normalisation methods, 
 
  # Version 3
  ## Proposal
+ 61,508,906 total parameters.
  - [x] Convert to LAB colorspace
  - [x] 2 Channel output
  - [ ] K-means global hints

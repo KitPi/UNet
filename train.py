@@ -107,7 +107,7 @@ for epoch in range(num_epochs):
         writer.add_scalar('Loss/train', loss.item(), epoch * len(train_loader) + i)
 
 
-        if i % 1000 ==0:
+        if i % 10000 ==0:
             print(f'Checkpoint: [{epoch+1}/{num_epochs}], Batch [{i}]')
             torch.save(model.state_dict(), output_dir + f'checkpoint_{i}.pth')
 
