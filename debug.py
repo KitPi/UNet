@@ -135,8 +135,8 @@ def main():
             #lab_image = image.detach().numpy()
             
             output[0,:,:] = images[i,0,:,:].detach().numpy()*100.0   # Scale L* channel
-            output[1,:,:] = (image[0,:,:].detach().numpy() * 255.0) #- 64 # Scale a* channel
-            output[2,:,:] = (image[1,:,:].detach().numpy() * 255.0) #- 64  # Scale b* channel
+            output[1,:,:] = (image[0,:,:].detach().numpy() * 255.0) - 128.0 # Scale a* channel
+            output[2,:,:] = (image[1,:,:].detach().numpy() * 255.0) - 128.0  # Scale b* channel
 
             output = output.transpose(1,2,0)
 

@@ -7,7 +7,7 @@ def down_convolution(in_channels, out_channels):
     conv_op = nn.Sequential(
         nn.Conv2d(in_channels, out_channels, kernel_size = 3, padding = 1),
         nn.ReLU(inplace = True),
-        nn.Dropout(0.2),
+        nn.Dropout(0.25),
         nn.Conv2d(out_channels, out_channels, kernel_size = 5, padding = 2, stride =2),
         nn.ReLU(inplace = True),
         nn.BatchNorm2d(out_channels)
@@ -30,7 +30,7 @@ def up_convolution(in_channels, out_channels):
         nn.BatchNorm2d(out_channels),
         nn.Conv2d(out_channels, out_channels, kernel_size = 3, padding = 1),
         nn.ReLU(inplace = True),
-        #nn.BatchNorm2d(out_channels),
+        nn.BatchNorm2d(out_channels),
     ) 
     return conv_op
 
@@ -38,8 +38,10 @@ def self_conv(in_channels, out_channels):
     conv_op = nn.Sequential(
         nn.Conv2d(in_channels, out_channels, kernel_size = 3, padding = 1),
         nn.ReLU(inplace = True),
-        nn.Conv2d(out_channels, out_channels, kernel_size = 3, padding = 1),
-        nn.ReLU(inplace = True),
+        nn.BatchNorm2d(out_channels),
+        #nn.Conv2d(out_channels, out_channels, kernel_size = 3, padding = 1),
+        #nn.ReLU(inplace = True),
+        #nn.BatchNorm2d(out_channels),
     )
     return conv_op
 
@@ -53,7 +55,7 @@ def out_layer(in_channels, out_channels):
         nn.BatchNorm2d(16),
         nn.ReLU(inplace=True),
         nn.Conv2d(16, 2, kernel_size = 3, padding = 1),
-        nn.BatchNorm2d(2),
+        #nn.BatchNorm2d(2),
         nn.Sigmoid(),
     )
     return conv_op
