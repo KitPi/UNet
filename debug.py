@@ -39,7 +39,7 @@ from ImageDataset import *
 
 images_path = "dataset/train/"
 model_path = "output/"
-batch_size = 1
+batch_size = 64
 epochs=1
 num_example_images =5
 img_width =img_height=224
@@ -67,8 +67,8 @@ def main():
     #combined_images = [Image.new("RGB", (img_width * (epochs + 1), img_height)) for _ in range(num_example_images)]
 
 
-    criterion = nn.MSELoss()
-    ssim = StructuralSimilarityIndexMeasure(data_range=1.0).to(device)
+    criterion = nn.HuberLoss() #nn.MSELoss()
+    #ssim = StructuralSimilarityIndexMeasure(data_range=1.0).to(device)
     total_images = []
     total_loss =0.0
     for j in range(epochs):
@@ -76,10 +76,10 @@ def main():
         #weights_path = "model.pth"
         model = UNet()
         try:
-            weights = torch.load(f'output/checkpoint_{1000}.pth', map_location=device, weights_only=False)
+            weights = torch.load(f'output/checkpoint_{11000}.pth', map_location=device, weights_only=False)
             #weights = torch.load(f'output/model_epoch_1.pth', map_location=device, weights_only=False)
         except FileNotFoundError:
-            print(f"Model: output/checkpoint_{1000}.pth does not exist.")
+            print(f"Model: output/checkpoint_{11000}.pth does not exist.")
             #print(f"Model: output/model_epoch_1.pth does not exist.")
             raise
         
@@ -96,7 +96,7 @@ def main():
         alpha = 0.5
         beta = 0.5
         #loss = alpha * criterion(output, device_images) + beta * (1.0 - ssim(output, device_images)) #+ criterion(output[:,:2,:,:], device_images[:,:2,:,:])
-        loss = alpha * criterion(output, device_images[:,1:,:,:]) + beta * (1.0 - ssim(output, device_images[:,1:,:,:]))
+        loss =  criterion(output, device_images[:,1:,:,:])# + beta * (1.0 - ssim(output, device_images[:,1:,:,:]))
         #loss = 1.0 - ssim(output, device_images)
 
         #loss = criterion(output[:,:2,:,:], device_images[:,:2,:,:]) + 1.0 - ssim(output[:,:2,:,:], device_images[:,:2,:,:])
@@ -134,9 +134,9 @@ def main():
             output = np.zeros([3,224,224])
             #lab_image = image.detach().numpy()
             
-            output[0,:,:] = images[i,0,:,:].detach().numpy()*50  # Scale L* channel
-            output[1,:,:] = (image[0,:,:].detach().numpy() * 63) - 64  # Scale a* channel
-            output[2,:,:] = (image[1,:,:].detach().numpy() * 63) - 64  # Scale b* channel
+            output[0,:,:] = images[i,0,:,:].detach().numpy()*100.0   # Scale L* channel
+            output[1,:,:] = (image[0,:,:].detach().numpy() * 255.0) #- 64 # Scale a* channel
+            output[2,:,:] = (image[1,:,:].detach().numpy() * 255.0) #- 64  # Scale b* channel
 
             output = output.transpose(1,2,0)
 
@@ -147,6 +147,24 @@ def main():
             rgb_image_uint8 = (rgb_image*255).astype(np.uint8)
             image_rgb = Image.fromarray(rgb_image_uint8)
             image_rgb.show()
+
+
+
+            #output_norm = np.zeros([3,224,224])
+#
+            #output_norm[0,:,:] = images[i,0,:,:].detach().numpy()*100  # Scale L* channel
+            #output_norm[1,:,:] = (image[0,:,:].detach().numpy() * 127) - 128  # Scale a* channel
+            #output_norm[2,:,:] = (image[1,:,:].detach().numpy() * 127) - 128  # Scale b* channel
+#
+            #output_norm = output_norm.transpose(1,2,0)
+#
+            ##image[:2,:,:] = images[i,:2,:,:]
+            #rgb_image_norm = color.lab2rgb(output_norm)
+#
+#
+            #rgb_image_uint8_norm = (rgb_image_norm*255).astype(np.uint8)
+            #image_rgb_norm = Image.fromarray(rgb_image_uint8_norm)
+            #image_rgb_norm.show()
 
             #masked_image = transforms.functional.to_pil_image(masked_image, mode="LAB")
             #inferred_image = transforms.functional.to_pil_image(inferred_image, mode="LAB")

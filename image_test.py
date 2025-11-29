@@ -30,15 +30,20 @@ hints = image.copy()
 
 # Apply the mask to all three channels of the LAB image
 #for i in range(3):
-hints[:, :, 0] = image[:, :, 0] * mask # h,w,c
-hints[:, :, 1] = image[:, :, 1] * mask # h,w,c
-hints[:, :, 2] = image[:, :, 2] * mask # h,w,c
+hints[:, :, 0] = image[:, :, 0] * mask /100.0# h,w,c
+hints[:, :, 1] = image[:, :, 1] * mask /255.0# h,w,c
+hints[:, :, 2] = image[:, :, 2] * mask /255.0# h,w,c
 
 # Convert back to RGB for display
 l_hints = Image.fromarray(hints[:, :, 0].astype('uint8'))#.convert('RGB')
 alpha_hints = Image.fromarray(hints[:, :, 1].astype('uint8'))#.convert('RGB')
 beta_hints = Image.fromarray(hints[:, :, 2].astype('uint8'))
 image_rgb = Image.fromarray(image.astype('uint8'), 'LAB')#.convert('RGB')
+
+print(f"Alpha Mean: {np.mean(alpha_hints)}")
+print(f"Alpha Min: {np.min(alpha_hints)}")
+print(f"Alpha Max: {np.max(alpha_hints)}")
+print(f"Alpha Std: {np.std(alpha_hints)}")
 
 # Show the masked image
 #masked_image_rgb.show()

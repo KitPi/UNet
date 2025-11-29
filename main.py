@@ -43,6 +43,21 @@ def self_conv(in_channels, out_channels):
     )
     return conv_op
 
+def out_layer(in_channels, out_channels):
+    conv_op = nn.Sequential(
+        #nn.Conv2d(in_channels, out_channels, kernel_size = 3, padding = 1),
+        #nn.BatchNorm2d(out_channels),
+        #nn.Sigmoid()
+        #
+        nn.Conv2d(in_channels, 16, kernel_size = 3, padding = 1),
+        nn.BatchNorm2d(16),
+        nn.ReLU(inplace=True),
+        nn.Conv2d(16, 2, kernel_size = 3, padding = 1),
+        nn.BatchNorm2d(2),
+        nn.Sigmoid(),
+    )
+    return conv_op
+
 class UNet(nn.Module):
     def __init__(self):
         super(UNet, self).__init__()
@@ -80,7 +95,7 @@ class UNet(nn.Module):
         self.up_transpose_2 = nn.ConvTranspose2d(in_channels=512, out_channels=256, kernel_size=2, stride=2)
         self.up_transpose_3 = nn.ConvTranspose2d(in_channels=256, out_channels=128, kernel_size=2, stride=2)
         self.up_transpose_4 = nn.ConvTranspose2d(in_channels=128, out_channels=64, kernel_size=2, stride=2)
-        self.up_transpose_5 = nn.ConvTranspose2d(in_channels=64, out_channels=64, kernel_size=2, stride=2)
+        self.up_transpose_5 = nn.ConvTranspose2d(in_channels=64, out_channels=32, kernel_size=2, stride=2)
 
         # hint self convolution layers
         self.hint_self_conv = self_conv(3, 3)
@@ -93,7 +108,7 @@ class UNet(nn.Module):
         
 
         # output layer
-        self.out = nn.Conv2d(in_channels=64, out_channels=2, kernel_size=1)
+        self.out = out_layer(35, 2)
 
     def forward(self, images, hints):
 
@@ -166,10 +181,11 @@ class UNet(nn.Module):
         cons4 = torch.cat([across1, up_4], 1) # h/2, w/2, 128 = ( 64 + 64 )
         x = self.up_convolution_4(cons4) # h/2, w/2, 64
 
-        up_5 = self.up_transpose_5(x) # h, w, 2
+        up_5 = self.up_transpose_5(x) # h, w, 32
+        cons5 = torch.cat([hints_2, up_5],1) # h, w, 35
 
         # output
-        out = self.out(up_5)
+        out = self.out(cons5)
 
         return out
 

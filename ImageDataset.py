@@ -50,9 +50,9 @@ def collate_function(batch):
 
         # Apply the mask to all three channels of the LAB image
         #for i in range(3):
-        hint[0, :, :] = image[0, :, :] * mask #* 100# c,h,w
-        hint[1, :, :] = image[1, :, :] * mask #* 127 -128# c,h,w
-        hint[2, :, :] = image[2, :, :] * mask #* 127 -128# c,h,w
+        hint[0, :, :] = image[0, :, :] * mask /100.0#* 100# c,h,w
+        hint[1, :, :] = image[1, :, :] * mask /255.0#* 127 -128# c,h,w
+        hint[2, :, :] = image[2, :, :] * mask /255.0#* 127 -128# c,h,w
 
             
         hints.append(hint)
@@ -70,7 +70,7 @@ def load_dataset(train_folder, batch_size, transform=None):
         transform = transforms.Compose([
             transforms.Resize((224, 224)),
             transforms.ToTensor(),
-            transforms.Normalize(mean=[0.0], std=[0.5])
+            #transforms.Normalize(mean=[0.5], std=[0.25])
         ])
 
     # create train, test, and val datasets
