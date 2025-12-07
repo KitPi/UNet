@@ -52,7 +52,7 @@ from ImageDataset import ImageDataset, load_dataset
 train_loader = load_dataset(train_folder, batch_size)
 
 # training loop
-num_epochs = 1
+num_epochs = 5
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model = UNet()#input_channels=3, output_channels=2)
 
