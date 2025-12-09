@@ -52,22 +52,22 @@ from ImageDataset import ImageDataset, load_dataset
 train_loader = load_dataset(train_folder, batch_size)
 
 # training loop
-num_epochs = 5
+num_epochs = 3
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model = UNet()#input_channels=3, output_channels=2)
 
-#try:
-#    weights = torch.load(f'output/checkpoint_{1500}.pth', map_location=device, weights_only=False)
-#except FileNotFoundError:
-#    print(f"Model: output/checkpoint_{1500}.pth does not exist.")
-#    raise
-#model.load_state_dict(weights)#.state_dict())
+try:
+    weights = torch.load(f'output/model.pth', map_location=device, weights_only=False)
+except FileNotFoundError:
+    print(f"Model: output/model.pth does not exist.")
+    raise
+model.load_state_dict(weights.state_dict())
 
 model.to(device)
 
-learning_rate = 5e-5 
+learning_rate = 25e-6 
 optimizer = optim.Adam(model.parameters(), lr=learning_rate)
-criterion = nn.HuberLoss()#nn.MSELoss()
+criterion = nn.MSELoss() # nn.HuberLoss() #
 ssim = StructuralSimilarityIndexMeasure(data_range=1.0).to(device)
 
 for epoch in range(num_epochs):

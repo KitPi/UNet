@@ -76,11 +76,11 @@ def main():
         #weights_path = "model.pth"
         model = UNet()
         try:
-            weights = torch.load(f'output/checkpoint_{11000}.pth', map_location=device, weights_only=False)
-            #weights = torch.load(f'output/model_epoch_1.pth', map_location=device, weights_only=False)
+            #weights = torch.load(f'output/checkpoint_{11000}.pth', map_location=device, weights_only=False)
+            weights = torch.load(f'output/model_epoch_1.pth', map_location=device, weights_only=False)
         except FileNotFoundError:
-            print(f"Model: output/checkpoint_{11000}.pth does not exist.")
-            #print(f"Model: output/model_epoch_1.pth does not exist.")
+            #print(f"Model: output/checkpoint_{11000}.pth does not exist.")
+            print(f"Model: output/model_epoch_5.pth does not exist.")
             raise
         
         model.load_state_dict(weights)#.state_dict())
@@ -135,8 +135,10 @@ def main():
             #lab_image = image.detach().numpy()
             
             output[0,:,:] = images[i,0,:,:].detach().numpy()*100.0   # Scale L* channel
-            output[1,:,:] = (image[0,:,:].detach().numpy() * 255.0) - 128.0 # Scale a* channel
-            output[2,:,:] = (image[1,:,:].detach().numpy() * 255.0) - 128.0  # Scale b* channel
+            #output[1,:,:] = (image[0,:,:].detach().numpy() *-255.0) + 128.0 # Scale a* channel
+            #output[2,:,:] = (image[1,:,:].detach().numpy() *-255.0) + 128.0  # Scale b* chann128
+            output[1,:,:] = (image[0,:,:].detach().numpy() *-127.0) + 64.0 # Scale a* channel
+            output[2,:,:] = (image[1,:,:].detach().numpy() *-127.0) + 64.0  # Scale b* chann128
 
             output = output.transpose(1,2,0)
 
