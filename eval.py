@@ -113,7 +113,7 @@ def graph(read_file_path):
 
     plt.xlabel('Model epoch')
     plt.ylabel('MSE error')
-    plt.title('Decrease in error vs. Epoch')
+    plt.title('Error vs. Epoch')
     plt.ylim(0, 0.5)
 
     plt.savefig("examples/eval_fig.png")

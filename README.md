@@ -84,7 +84,7 @@ Highly experimental trails of different error functions, normalisation methods, 
  - [x] Reimplement Hints skip connections
 
  ## Notes
- This model improved upon the last version by fully implementing a hints feed-forward network. This model passed the hints up the U-Net structure to higher complexity convolutional layers, allowing hint information to permeate the network at the highest levels. LAB colour-space was implemented in this version which is easier to train on than HSV colour-space. This version also removed the max-pooling layers, instead making down-convolutions that reduce channel size. The first 5 epochs were trained with a Huber loss function, the last 3 epochs were trained on MSError loss functions. This allowed the network to train easily on high-variance data, later MSError was used to train the network back to expected results after epoch 5. 
+ This model improved upon the last version by fully implementing a hint convolutional feed-forward network. This model passes colour hints up the U-Net structure to higher complexity convolutional layers, allowing hint information to permeate the network at the highest levels. This version also removed the max-pooling layers, instead making down-convolutions that reduce channel size. The LAB colour-space was implemented in this version which is easier to train on than HSV colour-space. The first 5 epochs were trained with a Huber loss function, the last 3 epochs were trained on MSError loss functions. This allowed the network to train easily on high-variance data, later MSError was used to train the network back to expected results after epoch 5. 
 
  ## Results
 ![Results](examples/ver3/_combined_img.png)
