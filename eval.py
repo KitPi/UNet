@@ -9,11 +9,11 @@ import torch
 # +++++ ===== +++++ ===== +++++ ===== +++++ ===== 
 
 #test_path = "dataset/test"
-eval_path = "dataset/val"
+eval_path = "dataset/val/"
 write_file_path = "examples/write_file.csv"
-batch_size = 32
-num_models = 1
-eval_size = 256
+batch_size = 64
+num_models = 8
+eval_size = 64
 # +++++ ===== +++++ ===== +++++ ===== +++++ ===== 
 
 
@@ -28,7 +28,7 @@ def main():
 
     # load image datasets
     #test_loader = load_dataset(images_path=test_path, batch_size=batch_size)
-    eval_loader = load_dataset(images_path=eval_path, batch_size=batch_size)
+    eval_loader = load_dataset(eval_path, batch_size)
 
 
     ## evaluate for each model
@@ -65,7 +65,7 @@ def main():
                 
                 output = model(device_images[:, 0, :, :].reshape([length, 1, 224, 224]), device_hints) #batch_size, channels, h, w
                 #loss = criterion(output, device_images[:, :2, :, :])
-                loss = criterion(output, images) + 1.0 - ssim(output, images) #+ criterion(output[:,:2,:,:], images[:,:2,:,:])
+                loss = criterion(output, device_images[:,1:,:,:]) #+ 1.0 - ssim(output, images) #+ criterion(output[:,:2,:,:], images[:,:2,:,:])
                 total_loss += loss.item()
 
                 if i % batch_size == 0:
@@ -114,10 +114,10 @@ def graph(read_file_path):
     plt.xlabel('Model epoch')
     plt.ylabel('MSE error')
     plt.title('Decrease in error vs. Epoch')
-    plt.ylim(0.5,1)
+    plt.ylim(0, 0.5)
 
     plt.savefig("examples/eval_fig.png")
 
 main()
-#graph(write_file_path)
+graph(write_file_path)
 

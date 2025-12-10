@@ -39,7 +39,7 @@ Input | Epoch 1 | Epoch 2 | Epoch 3 | Epoch 4 | Epoch 5 | Ground Truth
 ----- | ----- | ----- | ----- | ----- | ----- | ----- | 
 
 
-![Evaluation|300px](examples/eval_fig.png)
+![Evaluation|300px](examples/old/eval_fig.png)
 
 
 ------
@@ -80,5 +80,14 @@ Highly experimental trails of different error functions, normalisation methods, 
  - [ ] Sobel-MSE(O,Y),
  - [x] Hubert(O,Y) loss functions: https://docs.pytorch.org/docs/stable/generated/torch.nn.HuberLoss.html
  - [x] Dropout
- - [ ] Remove MaxPooling, downsample instead
- - [ ] Reimplement Hints skip connections
+ - [x] Remove MaxPooling, downsample instead
+ - [x] Reimplement Hints skip connections
+
+ ## Notes
+ This model improved upon the last version by fully implementing a hints feed-forward network. This model passed the hints up the U-Net structure to higher complexity convolutional layers, allowing hint information to permeate the network at the highest levels. LAB colour-space was implemented in this version which is easier to train on than HSV colour-space. This version also removed the max-pooling layers, instead making down-convolutions that reduce channel size. The first 5 epochs were trained with a Huber loss function, the last 3 epochs were trained on MSError loss functions. This allowed the network to train easily on high-variance data, later MSError was used to train the network back to expected results after epoch 5. 
+
+ ## Results
+![Results](examples/ver3/_combined_img.png)
+
+## Evaluation
+![Evaluation](examples/ver3/eval_fig.png)

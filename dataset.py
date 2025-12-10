@@ -31,7 +31,7 @@ def integrity(dataset_path):
         if filename.lower().endswith(('.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff')):
             # Try to open the image file
             try:
-                img = Image.open(os.path.join(dataset_path, filename)).convert('HSV')
+                img = Image.open(os.path.join(dataset_path, filename)).convert('LAB')
                 img.verify()
                 #print(f"{filename} is valid")
                 if i % 5000 == 0: 

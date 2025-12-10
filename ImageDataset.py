@@ -35,7 +35,7 @@ def collate_function(batch):
 
         mask = np.zeros((image.shape[1], image.shape[2]), dtype=np.float32)
 
-        max_num_points = 150# 125# 100# 75# 50# 25# 15# 10# 5
+        max_num_points = 15# 125# 100# 75# 50# 25# 15# 10# 5
         num_points = np.random.randint(1, max_num_points) - 1
         total_points = image.shape[0] * image.shape[1]
 
@@ -51,8 +51,8 @@ def collate_function(batch):
         # Apply the mask to all three channels of the LAB image
         #for i in range(3):
         hint[0, :, :] = image[0, :, :] * mask /100.0#* 100# c,h,w
-        hint[1, :, :] = image[1, :, :] * mask /255.0#* 127 -128# c,h,w
-        hint[2, :, :] = image[2, :, :] * mask /255.0#* 127 -128# c,h,w
+        hint[1, :, :] = image[1, :, :] * mask / 255.0#* 127 -128# c,h,w
+        hint[2, :, :] = image[2, :, :] * mask / 255.0#* 127 -128# c,h,w
 
             
         hints.append(hint)

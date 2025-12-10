@@ -37,11 +37,11 @@ import torch
 
 from ImageDataset import *
 
-images_path = "dataset/train/"
+images_path = "dataset/val/"
 model_path = "output/"
 batch_size = 64
-epochs=1
-num_example_images =5
+epochs=8
+num_example_images =8
 img_width =img_height=224
 
 def main():
@@ -77,10 +77,10 @@ def main():
         model = UNet()
         try:
             #weights = torch.load(f'output/checkpoint_{11000}.pth', map_location=device, weights_only=False)
-            weights = torch.load(f'output/model_epoch_1.pth', map_location=device, weights_only=False)
+            weights = torch.load(f'output/model_epoch_{j+1}.pth', map_location=device, weights_only=False)
         except FileNotFoundError:
             #print(f"Model: output/checkpoint_{11000}.pth does not exist.")
-            print(f"Model: output/model_epoch_5.pth does not exist.")
+            print(f"Model: output/model_epoch_{j+1}.pth does not exist.")
             raise
         
         model.load_state_dict(weights)#.state_dict())
@@ -148,7 +148,7 @@ def main():
 
             rgb_image_uint8 = (rgb_image*255).astype(np.uint8)
             image_rgb = Image.fromarray(rgb_image_uint8)
-            image_rgb.show()
+            #image_rgb.show()
 
 
 
@@ -174,26 +174,49 @@ def main():
 
             #image.convert(mode="RGB").save(f"{img_out}_{i}.png")
             #masked_image.convert(mode="RGB").save(f"{img_out}_masked_{i}.png")
-            #epoch_images.append(inferred_image.convert(mode="RGB"))#.save(f"{img_out}_inferred_{i}.png")
+            epoch_images.append(image_rgb)#.save(f"{img_out}_inferred_{i}.png")
 
-        #total_images.append(epoch_images)
+        total_images.append(epoch_images)
     
     
-    #img_out = 'examples/'
-    #out = Image.new("RGB", (img_width * (num_example_images + 2), img_height * num_example_images))
-    #for i, im_list in enumerate(total_images):
-    #    for j, im in enumerate(im_list):
-    #        out.paste(im, (img_width * (i + 1), img_height *j))
-    #    #out.paste(masked_images[i].convert(mode="RGB"), (img_width * num_example_images, img_height *i))
-#
-    ##images = images * std + mean
-    ##masked_images = masked_images * std + mean
-#
-    #for i in range(num_example_images):
-    #    mim = transforms.functional.to_pil_image(hints[i], mode="LAB")
-    #    im = transforms.functional.to_pil_image(images[i], mode="LAB")
-    #    out.paste(mim, (0, img_height * i))
-    #    out.paste(im, (img_width * (num_example_images+1), img_height * i))
-    #out.save(f"{img_out}_combined_img.png")
+    img_out = 'examples/'
+    out = Image.new("RGB", (img_width * (num_example_images + 1), img_height * num_example_images))
+    for i, im_list in enumerate(total_images):
+        for j, im in enumerate(im_list):
+            out.paste(im, (img_width * (i + 1), img_height *j))
+        #out.paste(masked_images[i].convert(mode="RGB"), (img_width * num_example_images, img_height *i))
+
+    #images = images * std + mean
+    #masked_images = masked_images * std + mean
+
+    for i in range(num_example_images):
+        mim= np.zeros([3,224,224])
+        mim[0,:,:] = images[i,0,:,:].detach().numpy()*100.0   # Scale L* channel
+        #mim[1,:,:] = images[i,0,:,:].detach().numpy()*255.0   # Scale a* channel
+        #mim[2,:,:] = images[i,0,:,:].detach().numpy()*255.0     # Scale b* chann128
+
+        mim = mim.transpose(1,2,0)
+
+        rgb_mim = color.lab2rgb(mim)
+        rgb_mim_uint8 = (rgb_mim*255).astype(np.uint8)
+        image_mim = Image.fromarray(rgb_mim_uint8)
+
+        im = np.zeros([3,224,224])
+        #im = transforms.functional.to_pil_image(images[i], mode="RGB")
+        im[0,:,:] = images[i,0,:,:].detach().numpy()*100.0   # Scale L* channel
+        im[1,:,:] = (images[i,1,:,:].detach().numpy() * -128.0) + 64.0 # Scale a* channel
+        im[2,:,:] = (images[i,2,:,:].detach().numpy() * -128.0) + 64.0  # Scale b* chann128
+
+        im = im.transpose(1,2,0)
+
+        rgb_im = color.lab2rgb(im)
+        rgb_im_uint8 = (rgb_im*255).astype(np.uint8)
+        image_im = Image.fromarray(rgb_im_uint8)
+
+        #image.convert
+
+        out.paste(image_mim, (0, img_height * i))
+        #out.paste(image_im, (img_width * (num_example_images+1), img_height * i))
+    out.save(f"{img_out}_combined_img.png")
 
 main()
