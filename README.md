@@ -83,6 +83,11 @@ Highly experimental trails of different error functions, normalisation methods, 
  - [x] Remove MaxPooling, downsample instead
  - [x] Reimplement Hints skip connections
 
+ ## Training 
+ ![Loss / training](image.png)
+
+ This image shows the first five training epochs in Green, where the Huber loss function was used. The next three training epochs are in Orange, where the MSError loss function was used. Each epoch was ~20k image batches. The lowest loss values do not necessarily reflect better visual results. Epochs 3-5 achieeved the better loss results recorded, but the visual accuracy of the images was degraded. Training with Huber loss allowed the model to train on  higly variable data without incurring huge losses, but allowed later epochs to overtrain and lose accuracy. Switching to MSError after epoch 5 allowed the model to produce more accurate results.
+
  ## Notes
  This model improved upon the last version by fully implementing a hint convolutional feed-forward network. This model passes colour hints up the U-Net structure to higher complexity convolutional layers, allowing hint information to permeate the network at the highest levels. This version also removed the max-pooling layers, instead making down-convolutions that reduce channel size. The LAB colour-space was implemented in this version which is easier to train on than HSV colour-space. The first 5 epochs were trained with a Huber loss function, the last 3 epochs were trained on MSError loss functions. This allowed the network to train easily on high-variance data, later MSError was used to train the network back to expected results after epoch 5. 
 
